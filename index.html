@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>李烁恋爱心动日常记录系统</title>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+/* ============ 设计令牌 ============ */
+:root{
+  --bg:#FAF1EC; --bg2:#F6E9E3; --card:#FFFDFB; --ink:#5B4A4E; --ink-soft:#9A868B;
+  --rose:#D98C9A; --rose-deep:#C2707F; --rose-soft:#F4DCE1; --peach:#F2C9B8;
+  --line:#EFDFDA; --star:#E8A75C; --shadow:0 6px 20px rgba(200,140,150,.14);
+  --fab-size:58px;
+}
+[data-theme="dark"]{
+  --bg:#2A2226; --bg2:#33282D; --card:#3A2E33; --ink:#F0E4E0; --ink-soft:#B39A9F;
+  --rose:#E59AA8; --rose-deep:#D98794; --rose-soft:#4A3339; --peach:#C98D6F;
+  --line:#4A3A40; --star:#E8B25C; --shadow:0 6px 20px rgba(0,0,0,.35);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  background:var(--bg); color:var(--ink);
+  display:flex; justify-content:center;
+  transition:background .3s ease,color .3s ease;
+}
+.serif{font-family:"Noto Serif SC","Songti SC",serif}
+/* ============ 手机壳 ============ */
+.shell{
+  width:100%; max-width:460px; min-height:100dvh; position:relative;
+  background:var(--bg); box-shadow:0 0 40px rgba(0,0,0,.06);
+  overflow-x:hidden;
+}
+@media (min-width:460px){ .shell{ border-radius:28px; margin:12px 0; min-height:calc(100dvh - 24px);} }
+/* ============ 页面视图 ============ */
+.view{display:none; padding-bottom:130px}
+.view.active{display:block; animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* ============ 通用组件 ============ */
+.page-head{position:sticky;top:0;z-index:20;background:var(--bg);padding:16px 20px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line)}
+.page-head .back{width:36px;height:36px;border:none;background:var(--card);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--ink);cursor:pointer;box-shadow:var(--shadow)}
+.page-head h1{font-size:17px;font-weight:700;letter-spacing:.5px}
+.icon-btn{width:36px;height:36px;border:none;background:var(--card);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;color:var(--rose-deep);cursor:pointer;box-shadow:var(--shadow)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:14px;padding:13px 20px;font-size:15px;font-weight:600;cursor:pointer;transition:transform .15s,opacity .15s}
+.btn:active{transform:scale(.96)}
+.btn-primary{background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;box-shadow:0 6px 16px rgba(194,112,127,.35)}
+.btn-ghost{background:var(--card);color:var(--rose-deep);box-shadow:var(--shadow);border:1px solid var(--line)}
+.btn-danger{background:var(--card);color:#C25B5B;box-shadow:var(--shadow);border:1px solid var(--line)}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:7px 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--ink-soft);font-size:13px;cursor:pointer;transition:all .15s}
+.chip.on{background:var(--rose-soft);border-color:var(--rose);color:var(--rose-deep);font-weight:600}
+.chip-count{background:var(--rose);color:#fff;border-radius:999px;padding:0 7px;font-size:11px;line-height:16px}
+.empty{padding:70px 20px;text-align:center;color:var(--ink-soft)}
+.empty .heart{opacity:.35;margin-bottom:14px}
+.empty p{font-size:14px;line-height:1.9}
+/* ============ 底部标签栏 ============ */
+.tabbar{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:50;
+  width:100%;max-width:460px;background:var(--card);border-top:1px solid var(--line);
+  display:flex;padding:8px 8px calc(10px + env(safe-area-inset-bottom));
+}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;color:var(--ink-soft);font-size:11px;padding:4px 0;cursor:pointer}
+.tab.on{color:var(--rose-deep)}
+.tab svg{width:22px;height:22px}
+/* ============ 悬浮新建按钮 ============ */
+.fab{
+  position:fixed;z-index:60;width:var(--fab-size);height:var(--fab-size);border-radius:50%;
+  border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;
+  box-shadow:0 10px 24px rgba(194,112,127,.45);
+  right:max(18px,calc((100vw - 460px)/2 + 18px));
+  bottom:calc(78px + env(safe-area-inset-bottom));
+  transition:transform .2s;
+}
+.fab:active{transform:scale(.92)}
+.fab svg{width:26px;height:26px}
+.fab .fab-label{position:absolute;right:calc(100% + 8px);top:50%;transform:translateY(-50%);background:var(--card);color:var(--rose-deep);font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px;box-shadow:var(--shadow);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s}
+.fab:hover .fab-label{opacity:1}
+/* ============ 首页 ============ */
+.hero{padding:26px 20px 18px;text-align:center;position:relative}
+.hero .slogan{font-size:22px;font-weight:700;letter-spacing:1px;color:var(--rose-deep)}
+.hero .sub{font-size:12px;color:var(--ink-soft);margin-top:6px;letter-spacing:2px}
+.hero .divider{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px}
+.hero .divider::before,.hero .divider::after{content:"";height:1px;width:36px;background:var(--line)}
+.hero .divider svg{width:16px;height:16px;color:var(--rose)}
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 20px}
+.stat-card{background:var(--card);border-radius:18px;padding:16px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.stat-card .num{font-size:30px;font-weight:700;color:var(--rose-deep);font-family:"Noto Serif SC",serif}
+.stat-card .lbl{font-size:12px;color:var(--ink-soft);margin-top:4px}
+.highlight-card{margin:12px 20px 0;background:linear-gradient(150deg,var(--rose-soft),var(--card) 65%);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+.highlight-card .h-lbl{font-size:12px;color:var(--rose-deep);font-weight:600;display:flex;align-items:center;gap:6px}
+.highlight-card .h-lbl svg{width:14px;height:14px}
+.highlight-card .h-title{font-size:16px;font-weight:700;margin:8px 0 4px}
+.highlight-card .h-meta{font-size:12px;color:var(--ink-soft)}
+.flow-sec{padding:18px 20px 0}
+.flow-sec .sec-title{font-size:14px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.flow-sec .sec-title svg{width:16px;height:16px;color:var(--rose)}
+.mcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s;position:relative}
+.mcard:active{transform:scale(.985)}
+.mcard .row1{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.mcard .m-title{font-size:15px;font-weight:700;flex:1;line-height:1.4}
+.mcard .m-mood{font-size:18px}
+.mcard .stars{display:flex;gap:2px;margin-top:6px}
+.mcard .stars svg{width:14px;height:14px}
+.mcard .m-body{font-size:13px;color:var(--ink-soft);line-height:1.6;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mcard .m-foot{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.mcard .m-time{font-size:11px;color:var(--ink-soft)}
+.mcard .draft-badge{font-size:11px;color:#C25B5B;background:rgba(194,91,91,.1);padding:2px 8px;border-radius:999px;border:1px solid rgba(194,91,91,.25)}
+/* ============ 编辑页 ============ */
+.form{padding:20px}
+.field{margin-bottom:20px}
+.field .f-lbl{font-size:13px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.field .f-lbl .req{color:var(--rose-deep)}
+.field .f-lbl .opt{color:var(--ink-soft);font-weight:400;font-size:11px}
+.input,.textarea,.select{width:100%;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:12px 14px;font-size:14px;color:var(--ink);font-family:inherit;outline:none;transition:border-color .15s}
+.input:focus,.textarea:focus,.select:focus{border-color:var(--rose)}
+.textarea{min-height:120px;resize:vertical;line-height:1.7}
+.star-picker{display:flex;gap:6px}
+.star-picker button{background:none;border:none;cursor:pointer;padding:2px;color:var(--ink-soft);transition:transform .15s}
+.star-picker button.on{color:var(--star)}
+.star-picker button:active{transform:scale(1.15)}
+.star-picker svg{width:30px;height:30px}
+.star-hint{font-size:11px;color:var(--ink-soft);margin-top:6px}
+.mood-picker{display:flex;gap:10px;flex-wrap:wrap}
+.mood{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.mood.on{border-color:var(--rose);background:var(--rose-soft);transform:scale(1.08)}
+.tag-field .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.tag-custom{display:flex;gap:8px}
+.tag-custom .input{flex:1}
+.upload-box{border:1.5px dashed var(--rose);border-radius:14px;padding:18px;text-align:center;color:var(--rose-deep);font-size:13px;cursor:pointer;background:var(--rose-soft);display:block;width:100%}
+.upload-box svg{width:22px;height:22px;margin-bottom:6px;display:block;margin-inline:auto}
+.upload-box .ub-sub{font-size:11px;color:var(--ink-soft);margin-top:4px}
+.preview-box{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.preview-item{position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--line);aspect-ratio:1}
+.preview-item img{width:100%;height:100%;object-fit:cover;display:block}
+.preview-item .p-del{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;border:none;background:rgba(60,45,50,.72);color:#fff;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.preview-item .p-del:hover{background:rgba(194,91,91,.9)}
+.d-imgs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 16px}
+.d-imgs img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
+.form-actions{display:flex;gap:10px;padding:6px 20px 20px}
+.form-actions .btn{flex:1}
+.form-actions .btn-danger{flex:0 0 auto;width:52px;padding:13px 0}
+/* ============ 详情页 ============ */
+.detail{padding:20px}
+.detail .d-time{font-size:12px;color:var(--ink-soft);display:flex;align-items:center;gap:6px}
+.detail .d-time svg{width:14px;height:14px}
+.detail .d-title{font-size:22px;font-weight:700;margin:8px 0 10px;line-height:1.4}
+.detail .stars{display:flex;gap:3px;margin-bottom:12px}
+.detail .stars svg{width:20px;height:20px}
+.detail .d-meta{display:flex;align-items:center;gap:10px;margin:12px 0}
+.detail .d-mood{font-size:26px}
+.detail .d-loc{font-size:13px;color:var(--ink-soft);display:flex;align-items:center;gap:5px}
+.detail .d-loc svg{width:14px;height:14px}
+.detail .d-tags{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.detail .d-body{font-size:15px;line-height:2;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow);white-space:pre-wrap}
+.detail .d-actions{display:flex;gap:10px;margin-top:20px}
+.detail .d-actions .btn{flex:1}
+.reply-del{margin-left:auto;border:none;background:transparent;color:var(--ink-soft);font-size:13px;padding:2px 6px;cursor:pointer;border-radius:8px;flex-shrink:0}
+.reply-del:hover{color:#e05a5a}
+.secret-wrap{padding:16px 20px 90px}
+.secret-tip{font-size:12px;color:var(--ink-soft);background:linear-gradient(135deg,var(--rose-soft),#fff);border:1px solid var(--rose-soft);border-radius:16px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;line-height:1.55;box-shadow:0 2px 10px rgba(233,168,180,.12)}
+.secret-tip .st-ico{width:32px;height:32px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--rose-deep);box-shadow:0 1px 4px rgba(233,168,180,.25)}
+.secret-tip .st-ico svg{width:16px;height:16px}
+.secret-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.secret-item{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;cursor:pointer;transition:all .15s;box-shadow:0 2px 8px rgba(233,168,180,.08)}
+.secret-item:active{transform:scale(.98)}
+.secret-item .ra{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.secret-item .secret-item-main{flex:1;min-width:0}
+.secret-item .secret-item-h{display:flex;align-items:center;gap:8px;margin-bottom:3px}
+.secret-item .secret-item-h .rn{font-size:13px;font-weight:700}
+.secret-item .secret-item-h .rt{font-size:11px;color:var(--ink-soft)}
+.secret-item .secret-item-t{font-size:12px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.secret-lock{width:26px;height:26px;border-radius:50%;background:var(--rose-soft);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.secret-compose{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:16px;box-shadow:0 4px 16px rgba(233,168,180,.14)}
+.sc-title{font-size:15px;font-weight:700;color:var(--rose-deep);margin-bottom:12px;text-align:center}
+.sc-media-opts{display:flex;gap:10px;margin-bottom:12px}
+.sc-opt{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;border:1.5px dashed var(--rose);border-radius:16px;padding:14px 8px;cursor:pointer;background:var(--rose-soft);transition:all .15s;font-size:13px;font-weight:600;color:var(--ink)}
+.sc-opt:active{transform:scale(.97)}
+.sc-opt .sc-ico{font-size:26px;line-height:1}
+.sc-preview{width:100%;border-radius:12px;overflow:hidden;background:#000;margin-bottom:12px}
+.sc-preview img{width:100%;display:block;max-height:140px;object-fit:cover}
+.sc-file-name{padding:12px;text-align:center;font-size:12px;color:#fff;background:#222}
+.sc-note{border-radius:12px;background:var(--bg);margin-bottom:12px}
+.sc-actions{display:flex;gap:10px}
+.sc-actions .btn{flex:1}
+.secret-view{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:14px;box-shadow:0 4px 16px rgba(233,168,180,.14)}
+.secret-media{width:100%;border-radius:14px;overflow:hidden;background:#000}
+.secret-media img,.secret-media video{width:100%;display:block;max-height:58vh;object-fit:contain}
+.secret-none{padding:30px;text-align:center;color:var(--ink-soft);font-size:13px}
+.secret-note-view{margin-top:12px;font-size:14px;line-height:1.6;color:var(--ink);white-space:pre-wrap;text-align:center}
+.secret-burn{margin-top:16px;display:flex;flex-direction:column;gap:12px;align-items:center}
+.secret-burn-tip{font-size:12px;color:var(--rose-deep);background:var(--rose-soft);border-radius:20px;padding:6px 14px}
+.secret-count-wrap{position:relative;width:96px;height:96px;margin:0 auto}
+.secret-ring-svg{width:96px;height:96px;transform:rotate(-90deg)}
+.secret-ring-bg{fill:none;stroke:rgba(233,168,180,.2);stroke-width:4}
+.secret-ring{fill:none;stroke:var(--rose);stroke-width:4;stroke-linecap:round}
+.secret-count-core{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--rose-deep)}
+.secret-count-core #secret-count{font-size:26px;font-weight:800;line-height:1}
+.secret-count-core em{font-style:normal;font-size:10px;margin-top:2px;color:var(--ink-soft)}
+.secret-send{width:100%;border-radius:14px}
+
+
+/* ============ 标签页 ============ */
+.tag-panel{padding:20px}
+.tag-chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.tag-list .mcard{cursor:pointer}
+/* ============ 时光轴 ============ */
+.timeline{padding:24px 24px 0;position:relative}
+.timeline::before{content:"";position:absolute;left:22px;top:8px;bottom:8px;width:2px;background:linear-gradient(var(--rose-soft),var(--rose),var(--rose-soft));border-radius:2px}
+.tl-item{position:relative;padding-left:46px;margin-bottom:26px}
+.tl-dot{position:absolute;left:9px;top:4px;width:28px;height:28px;border-radius:50%;background:var(--card);border:2px solid var(--rose);display:flex;align-items:center;justify-content:center;color:var(--rose);box-shadow:var(--shadow)}
+.tl-dot svg{width:14px;height:14px}
+.tl-date{font-size:12px;color:var(--rose-deep);font-weight:600;margin-bottom:6px}
+.tl-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s}
+.tl-card:active{transform:scale(.985)}
+.tl-card .tl-title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
+.tl-card .tl-title .emoji{font-size:16px}
+.tl-card .tl-snip{font-size:12px;color:var(--ink-soft);line-height:1.6;margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tl-card .stars{display:flex;gap:2px;margin-top:6px}
+.tl-card .stars svg{width:12px;height:12px}
+.tl-year{font-size:16px;font-weight:700;color:var(--rose-deep);margin:6px 0 16px 46px;font-family:"Noto Serif SC",serif}
+/* ============ 设置页 ============ */
+.set-sec{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 20px 14px;box-shadow:var(--shadow)}
+.set-sec .set-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.set-sec .set-title svg{width:15px;height:15px;color:var(--rose)}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0}
+.set-row + .set-row{border-top:1px solid var(--line)}
+.set-row .s-lbl{font-size:14px}
+.set-row .s-sub{font-size:11px;color:var(--ink-soft);margin-top:2px}
+.theme-options{display:flex;gap:10px;margin-top:6px}
+.theme-opt{flex:1;border:1.5px solid var(--line);border-radius:12px;padding:12px;text-align:center;cursor:pointer;transition:all .15s;background:var(--card)}
+.theme-opt.on{border-color:var(--rose);background:var(--rose-soft)}
+.theme-opt .t-ico{width:28px;height:28px;margin:0 auto 6px;border-radius:50%}
+.theme-opt .t-ico.light{background:linear-gradient(135deg,#F6E9E3,#D98C9A)}
+.theme-opt .t-ico.dark{background:linear-gradient(135deg,#33282D,#E59AA8)}
+.theme-opt .t-name{font-size:12px;font-weight:600}
+.note-card{background:var(--rose-soft);border:1px dashed var(--rose);border-radius:14px;padding:14px 16px;margin:0 20px;font-size:12px;color:var(--rose-deep);line-height:1.7;display:flex;gap:8px}
+.note-card svg{width:16px;height:16px;flex-shrink:0;margin-top:2px}
+/* ============ 双人交互 ============ */
+.couple-banner{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px}
+.couple-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;box-shadow:var(--shadow);border:2px solid var(--card)}
+.couple-avatar.chen{background:linear-gradient(135deg,#A7C4D8,#7FA3BD)}
+.couple-avatar.shuo{background:linear-gradient(135deg,#E8A7B4,#D98C9A)}
+.couple-avatar .sub{font-size:8px;font-weight:400;opacity:.9}
+.couple-name{font-size:15px;font-weight:700;color:var(--rose-deep);display:flex;flex-direction:column;align-items:center;gap:2px}
+.couple-name small{font-size:9px;font-weight:400;color:var(--ink-soft)}
+.couple-heart{color:var(--rose);display:flex}
+.couple-heart svg{width:18px;height:18px}
+.author-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;color:#fff}
+.author-badge.chen{background:linear-gradient(135deg,#A7C4D8,#7FA3BD)}
+.author-badge.shuo{background:linear-gradient(135deg,#E8A7B4,#D98C9A)}
+.author-badge svg{width:12px;height:12px}
+.reply-sec{margin-top:20px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+.reply-sec .r-title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.reply-sec .r-title svg{width:16px;height:16px;color:var(--rose)}
+.reply-list{display:flex;flex-direction:column;gap:12px;margin-bottom:12px}
+.reply-item{display:flex;gap:10px;align-items:flex-start}
+.reply-item .ra{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.reply-item .ra.chen{background:#7FA3BD}
+.reply-item .ra.shuo{background:#D98C9A}
+.reply-item .rb{flex:1}
+.reply-item .rb .rh{display:flex;align-items:center;gap:6px}
+.reply-item .rb .rn{font-size:12px;font-weight:700}
+.reply-item .rb .rt{font-size:10px;color:var(--ink-soft)}
+.reply-item .rb .rtxt{font-size:13px;line-height:1.7;margin-top:4px;background:var(--bg2);border-radius:10px;padding:8px 12px}
+.reply-write{display:flex;gap:8px;align-items:center}
+.reply-write .input{flex:1}
+.reply-write .btn{padding:10px 16px}
+.reply-empty{font-size:12px;color:var(--ink-soft);text-align:center;padding:14px 0;line-height:1.8}
+/* 记录人选择（编辑器） */
+.author-picker{display:flex;gap:10px}
+.author-opt{flex:1;display:flex;align-items:center;gap:8px;border:1.5px solid var(--line);border-radius:14px;padding:10px 14px;cursor:pointer;background:var(--card);transition:all .15s;font-size:14px;font-weight:600}
+.author-opt.on{border-color:var(--rose);background:var(--rose-soft)}
+.author-opt .ao-note{font-size:10px;color:var(--ink-soft);font-weight:400;margin-left:2px}
+.author-opt .ao-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.author-opt .ao-av.chen{background:#7FA3BD}
+.author-opt .ao-av.shuo{background:#D98C9A}
+.couple-stat{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px}
+.couple-stat .cs{font-size:11px;color:var(--ink-soft)}
+.couple-stat .cs b{color:var(--rose-deep);font-size:13px;margin-right:2px}
+/* ============ 登录页 ============ */
+.login-bg{position:absolute;inset:0;background:url('https://aka.doubaocdn.com/s/7cYSGIvBcE') center/cover no-repeat;filter:saturate(.9)}
+.login-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(250,241,236,.42),rgba(250,241,236,.9));display:flex;align-items:center;justify-content:center;padding:28px 24px}
+[data-theme="dark"] .login-overlay{background:linear-gradient(180deg,rgba(42,34,38,.5),rgba(42,34,38,.92))}
+.login-box{width:100%;max-width:360px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:30px 24px 24px;box-shadow:0 16px 40px rgba(120,80,90,.2);text-align:center}
+.login-heart{width:52px;height:52px;border-radius:50%;background:var(--rose-soft);color:var(--rose-deep);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.login-heart svg{width:26px;height:26px}
+.login-title{font-size:20px;font-weight:700;color:var(--rose-deep);letter-spacing:1px}
+.login-sub{font-size:12px;color:var(--ink-soft);margin-top:6px;letter-spacing:1px}
+.login-accounts{display:flex;gap:12px;margin:22px 0 16px}
+.account-card{flex:1;border:1.5px solid var(--line);border-radius:18px;padding:16px 10px 14px;cursor:pointer;background:var(--bg2);transition:all .2s}
+.account-card:hover{border-color:var(--rose);background:var(--rose-soft);transform:translateY(-2px)}
+.account-card .ac-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;margin:0 auto 10px;box-shadow:var(--shadow)}
+.ac-avatar.chen{background:linear-gradient(135deg,#A7C4D8,#7FA3BD)}
+.ac-avatar.shuo{background:linear-gradient(135deg,#E8A7B4,#D98C9A)}
+.account-card .ac-name{font-size:15px;font-weight:700}
+.account-card .ac-code{font-size:11px;color:var(--ink-soft);margin-top:3px;background:var(--card);display:inline-block;padding:2px 10px;border-radius:999px;border:1px solid var(--line)}
+.login-divider{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--ink-soft);margin:4px 0 12px}
+.login-divider::before,.login-divider::after{content:"";flex:1;height:1px;background:var(--line)}
+.login-input-row{display:flex;gap:8px}
+.login-input-row .input{flex:1;text-transform:uppercase;letter-spacing:2px}
+.login-hint{font-size:11px;color:var(--ink-soft);margin-top:12px;line-height:1.6}
+.login-indicator{font-size:11px;color:var(--ink-soft);margin-top:8px}
+.login-indicator b{color:var(--rose-deep)}
+/* ============ 恋爱天数 ============ */
+.love-days{margin:12px 20px 0;background:linear-gradient(135deg,var(--rose-soft),var(--card) 70%);border:1px solid var(--line);border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow)}
+.love-days .ld-heart{width:44px;height:44px;border-radius:50%;background:var(--card);border:1px solid var(--line);color:var(--rose-deep);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.love-days .ld-heart svg{width:22px;height:22px}
+.love-days .ld-body{flex:1}
+.love-days .ld-num{font-size:24px;font-weight:700;color:var(--rose-deep);font-family:"Noto Serif SC",serif;line-height:1.2}
+.love-days .ld-num small{font-size:12px;font-weight:400;color:var(--ink-soft)}
+.love-days .ld-sub{font-size:11px;color:var(--ink-soft);margin-top:3px}
+/* ============ 日历 ============ */
+.cal-wrap{padding:16px 20px 4px}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.cal-head .cal-title{font-size:16px;font-weight:700;font-family:"Noto Serif SC",serif;color:var(--ink)}
+.cal-nav-btn{width:36px;height:36px;border:none;border-radius:12px;background:var(--card);color:var(--rose-deep);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);border:1px solid var(--line)}
+.cal-nav-btn:active{transform:scale(.94)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:4px}
+.cal-week{font-size:11px;color:var(--ink-soft);text-align:center;padding:8px 0;font-weight:600}
+.cal-day{position:relative;aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;cursor:pointer;border:1px solid transparent;transition:background .15s}
+.cal-day:hover{background:var(--bg2)}
+.cal-day.other{color:var(--ink-soft);opacity:.4}
+.cal-day.today{background:var(--rose-soft);border-color:var(--rose);color:var(--rose-deep);font-weight:700}
+.cal-day.has-heart{background:rgba(243,178,196,.14)}
+.cal-day.has-star{background:rgba(232,167,92,.13)}
+.cal-day .cal-mark{position:absolute;bottom:4px;left:50%;transform:translateX(-50%)}
+.cal-day .cal-mark svg{width:13px;height:13px;display:block}
+.cal-day .cal-mark.heart{color:var(--rose-deep)}
+.cal-day .cal-mark.star{color:#E8A75C}
+.cal-head{position:relative}
+.cal-today-btn{position:absolute;left:50%;transform:translateX(-50%);bottom:-24px;font-size:10px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--rose-deep);cursor:pointer;box-shadow:var(--shadow);z-index:2}
+.cal-today-btn:active{transform:translateX(-50%) scale(.95)}
+.cal-title{padding-top:2px}
+.cal-legend{margin:34px 0 4px;padding-top:12px;border-top:1px dashed var(--line);display:flex;align-items:center;justify-content:center;gap:14px;font-size:11px;color:var(--ink-soft);flex-wrap:wrap}
+.cal-legend .lg{display:flex;align-items:center;gap:5px}
+.cal-legend .lg svg{width:13px;height:13px}
+.cal-legend .lg.h svg{color:var(--rose-deep)}
+.cal-legend .lg.s svg{color:#E8A75C}
+.cal-legend b{color:var(--rose-deep);font-weight:600}
+.cal-note{font-size:11px;color:var(--ink-soft);margin-top:8px;line-height:1.7;text-align:center}
+/* ============ 日历标记选择器 ============ */
+.cal-picker{position:fixed;z-index:90;left:50%;bottom:130px;transform:translateX(-50%);width:min(320px,84%);background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px;display:none;flex-direction:column;gap:10px}
+.cal-picker.show{display:flex;animation:cpIn .18s ease}
+@keyframes cpIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.cal-picker-title{font-size:12px;color:var(--ink-soft);text-align:center}
+.cal-picker-title b{color:var(--rose-deep)}
+.cal-picker-opts{display:flex;gap:8px}
+.cp-opt{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);cursor:pointer;font-size:12px;color:var(--ink)}
+.cp-opt svg{width:20px;height:20px}
+.cp-opt.heart svg{color:var(--rose-deep)}
+.cp-opt.star svg{color:#E8A75C}
+.cp-opt.on{border-color:var(--rose);background:var(--rose-soft);font-weight:600}
+.cp-opt.cancel{background:var(--card);color:var(--ink-soft)}
+/* ============ Toast ============ */
+#toast{position:fixed;z-index:100;left:50%;transform:translateX(-50%) translateY(-10px);bottom:130px;background:rgba(60,45,50,.92);color:#fff;font-size:13px;padding:10px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;max-width:80%;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell" id="shell">
+  <!-- ===== 登录页 ===== -->
+  <section class="view" id="view-login">
+    <div class="login-bg"></div>
+    <div class="login-overlay">
+      <div class="login-box">
+        <div class="login-heart"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.4-9.3-8.6C1.2 9.9 2.6 6.4 5.6 5.6c1.8-.5 3.7.1 4.9 1.6l1.5 1.8 1.5-1.8c1.2-1.5 3.1-2.1 4.9-1.6 3 .8 4.4 4.3 2.9 6.8C18.7 16.6 12 21 12 21z"/></svg></div>
+        <div class="login-title serif">李烁恋爱心动日常</div>
+        <div class="login-sub">属于陈立与李烁的双人记忆库</div>
+        <div class="login-accounts">
+          <div class="account-card" data-login="chen">
+            <div class="ac-avatar chen">陈</div>
+            <div class="ac-name">陈立</div>
+            <div class="ac-code">账号 CL</div>
+          </div>
+          <div class="account-card" data-login="shuo">
+            <div class="ac-avatar shuo">李</div>
+            <div class="ac-name">李烁</div>
+            <div class="ac-code">账号 LS</div>
+          </div>
+        </div>
+        <div class="login-divider">或输入账号</div>
+        <div class="login-input-row">
+          <input class="input" id="login-input" placeholder="输入 CL 或 LS" maxlength="6" autocomplete="off">
+          <button class="btn btn-primary" id="login-btn">进入</button>
+        </div>
+        <div class="login-hint" id="login-hint">登录后记录自动署名本人 · 两人的记录互相可见</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 首页 ===== -->
+  <section class="view" id="view-home">
+    <div class="hero">
+      <div class="couple-banner">
+        <div class="couple-avatar chen">陈<div class="sub">陈立</div></div>
+        <div class="couple-heart"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.4-9.3-8.6C1.2 9.9 2.6 6.4 5.6 5.6c1.8-.5 3.7.1 4.9 1.6l1.5 1.8 1.5-1.8c1.2-1.5 3.1-2.1 4.9-1.6 3 .8 4.4 4.3 2.9 6.8C18.7 16.6 12 21 12 21z"/></svg></div>
+        <div class="couple-avatar shuo">李<div class="sub">李烁</div></div>
+      </div>
+      <div class="slogan" id="slogan">和李烁的心动碎片</div>
+      <div class="sub">只属于我们俩的小小纪念册</div>
+      <div class="couple-stat"><span class="cs" id="cs-chen"><b id="stat-chen">0</b>条 陈立的心动</span><span class="cs" id="cs-heart" style="color:var(--rose)">♥</span><span class="cs" id="cs-sho"><b id="stat-sho">0</b>条 李烁的心动</span></div>
+      <div class="login-indicator">当前登录：<b id="cur-user">—</b></div>
+    </div>
+    <div class="love-days">
+      <div class="ld-heart"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.4-9.3-8.6C1.2 9.9 2.6 6.4 5.6 5.6c1.8-.5 3.7.1 4.9 1.6l1.5 1.8 1.5-1.8c1.2-1.5 3.1-2.1 4.9-1.6 3 .8 4.4 4.3 2.9 6.8C18.7 16.6 12 21 12 21z"/></svg></div>
+      <div class="ld-body">
+        <div class="ld-num" id="ld-num">—</div>
+        <div class="ld-sub" id="ld-sub">—</div>
+      </div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-card"><div class="num" id="stat-total">0</div><div class="lbl">心动记录总数</div></div>
+      <div class="stat-card"><div class="num" id="stat-month">0</div><div class="lbl">本月心动次数</div></div>
+    </div>
+    <div class="highlight-card" id="highlight-card">
+      <div class="h-lbl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.4-9.3-8.6C1.2 9.9 2.6 6.4 5.6 5.6c1.8-.5 3.7.1 4.9 1.6l1.5 1.8 1.5-1.8c1.2-1.5 3.1-2.1 4.9-1.6 3 .8 4.4 4.3 2.9 6.8C18.7 16.6 12 21 12 21z"/></svg>最高心动瞬间</div>
+      <div class="h-title" id="hl-title">—</div>
+      <div class="h-meta" id="hl-meta">—</div>
+    </div>
+    <div class="flow-sec">
+      <div class="sec-title"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.4-9.3-8.6C1.2 9.9 2.6 6.4 5.6 5.6c1.8-.5 3.7.1 4.9 1.6l1.5 1.8 1.5-1.8c1.2-1.5 3.1-2.1 4.9-1.6 3 .8 4.4 4.3 2.9 6.8C18.7 16.6 12 21 12 21z"/></svg>心动时间流</div>
+      <div id="home-flow"></div>
+    </div>
+  </section>
+
+  <!-- ===== 新建/编辑 ===== -->
+  <section class="view" id="view-editor">
+    <div class="page-head">
+      <button class="back" id="editor-back" aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <h1 id="editor-title">新建心动记录</h1>
+    </div>
+    <div class="form">
+      <div class="field">
+        <div class="f-lbl">记录人</div>
+        <div class="author-picker" id="f-author-picker"></div>
+      </div>
+      <div class="field">
+        <div class="f-lbl">心动场景标题 <span class="req">*</span></div>
+        <input class="input" id="f-title" type="text" placeholder="一句话概括这个心动瞬间" maxlength="40">
+      </div>
+      <div class="field">
+        <div class="f-lbl">心动正文</div>
+        <textarea class="textarea" id="f-body" placeholder="记录事件经过、当时的心情、心动的细节……"></textarea>
+      </div>
+      <div class="field">
+        <div class="f-lbl">心动等级 <span class="opt">5星为最强心动</span></div>
+        <div class="star-picker" id="f-stars"></div>
+        <div class="star-hint" id="f-star-hint">点击星星选择心动强度</div>
+      </div>
+      <div class="field">
+        <div class="f-lbl">心情</div>
+        <div class="mood-picker" id="f-moods"></div>
+      </div>
+      <div class="field tag-field">
+        <div class="f-lbl">心动标签 <span class="opt">可多选 / 自定义</span></div>
+        <div class="chips" id="f-tags"></div>
+        <div class="tag-custom">
+          <input class="input" id="f-tag-new" type="text" placeholder="输入自定义标签" maxlength="8">
+          <button class="btn btn-ghost" id="f-tag-add" style="padding:10px 16px">添加</button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="f-lbl">地点 <span class="opt">可选</span></div>
+        <input class="input" id="f-loc" type="text" placeholder="例如：江边步道">
+      </div>
+      <div class="field">
+        <div class="f-lbl">记录时间 <span class="opt">默认自动获取</span></div>
+        <input class="input" id="f-time" type="datetime-local">
+      </div>
+      <div class="field">
+        <div class="f-lbl">相片 <span class="opt">最多3张 · 保存在本机</span></div>
+        <label class="upload-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          点击上传相片
+          <input type="file" id="f-img" accept="image/*" multiple hidden>
+        </label>
+        <div class="preview-box" id="f-img-preview"></div>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" id="btn-draft">存为草稿</button>
+      <button class="btn btn-primary" id="btn-publish">发布</button>
+      <button class="btn btn-danger" id="btn-del" aria-label="删除" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>
+    </div>
+  </section>
+
+  <!-- ===== 详情 ===== -->
+  <section class="view" id="view-detail">
+    <div class="page-head">
+      <button class="back" id="detail-back" aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <h1>心动详情</h1>
+    </div>
+    <div class="detail" id="detail-body"></div>
+  </section>
+
+  <!-- ===== 日历 ===== -->
+  <section class="view" id="view-calendar">
+    <div class="page-head">
+      <button class="back" id="cal-back" aria-label="返回" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <h1>心动日历</h1>
+    </div>
+    <div class="cal-wrap">
+      <div class="cal-head">
+        <button class="cal-nav-btn" id="cal-prev" aria-label="上个月"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="cal-title" id="cal-title">—</div>
+        <button class="cal-nav-btn" id="cal-next" aria-label="下个月"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button class="cal-today-btn" id="cal-today">回今天</button>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="cal-legend">
+        <span class="lg h"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.4-9.3-8.6C1.2 9.9 2.6 6.4 5.6 5.6c1.8-.5 3.7.1 4.9 1.6l1.5 1.8 1.5-1.8c1.2-1.5 3.1-2.1 4.9-1.6 3 .8 4.4 4.3 2.9 6.8C18.7 16.6 12 21 12 21z"/></svg><span>爱心 = <b>心动日常</b></span></span>
+        <span class="lg s"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.2 6.8.8-5.1 4.6 1.4 6.7L12 17.4l-6 3.4 1.4-6.7L2.3 9.5l6.8-.8z"/></svg><span>五角星 = <b>特别的日子</b></span></span>
+      </div>
+      <div class="cal-note">点击日期选择标记 · 未来还没到的日子留白</div>
+    </div>
+  </section>
+
+  <!-- 日历标记选择器 -->
+  <div class="cal-picker" id="cal-picker">
+    <div class="cal-picker-title" id="cal-picker-title">标记 · <b>—</b></div>
+    <div class="cal-picker-opts">
+      <button class="cp-opt heart" id="cp-heart" aria-label="爱心"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.4-9.3-8.6C1.2 9.9 2.6 6.4 5.6 5.6c1.8-.5 3.7.1 4.9 1.6l1.5 1.8 1.5-1.8c1.2-1.5 3.1-2.1 4.9-1.6 3 .8 4.4 4.3 2.9 6.8C18.7 16.6 12 21 12 21z"/></svg>爱心</button>
+      <button class="cp-opt star" id="cp-star" aria-label="五角星"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.2 6.8.8-5.1 4.6 1.4 6.7L12 17.4l-6 3.4 1.4-6.7L2.3 9.5l6.8-.8z"/></svg>五角星</button>
+      <button class="cp-opt cancel" id="cp-cancel" aria-label="取消标记">取消标记</button>
+    </div>
+  </div>
+
+  <!-- ===== 标签筛选 ===== -->
+  <section class="view" id="view-tags">
+    <div class="page-head">
+      <button class="back" id="tags-back" aria-label="返回" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <h1>按标签筛选</h1>
+    </div>
+    <div class="tag-panel">
+      <div class="tag-chips" id="tag-chips"></div>
+      <div id="tag-list"></div>
+    </div>
+  </section>
+
+  <!-- ===== 时光轴 ===== -->
+  <section class="view" id="view-timeline">
+    <div class="page-head">
+      <button class="back" id="timeline-back" aria-label="返回" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <h1>回忆时光轴</h1>
+    </div>
+    <div class="timeline" id="timeline-body"></div>
+  </section>
+
+  <!-- ===== 设置 ===== -->
+  <section class="view" id="view-settings">
+    <div class="page-head">
+      <button class="back" id="settings-back" aria-label="返回" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <h1>设置</h1>
+    </div>
+    <div style="height:14px"></div>
+    <div class="set-sec">
+      <div class="set-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>首页标语</div>
+      <div class="set-row" style="flex-direction:column;align-items:stretch;gap:10px">
+        <input class="input" id="set-slogan" type="text" placeholder="例如：和李烁的心动碎片" maxlength="20">
+        <button class="btn btn-primary" id="btn-slogan-save" style="align-self:flex-start">保存标语</button>
+      </div>
+    </div>
+    <div class="set-sec">
+      <div class="set-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>数据备份</div>
+      <div class="set-row">
+        <div>
+          <div class="s-lbl">导出当前账号记录</div>
+          <div class="s-sub" id="set-export-sub">导出本账号全部心动记录为 JSON 文件</div>
+        </div>
+        <button class="btn btn-ghost" id="btn-export">导出</button>
+      </div>
+    </div>
+    <div class="set-sec">
+      <div class="set-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4l1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>主题切换</div>
+      <div class="theme-options">
+        <div class="theme-opt on" data-theme-val="light"><div class="t-ico light"></div><div class="t-name">温柔浅色</div></div>
+        <div class="theme-opt" data-theme-val="dark"><div class="t-ico dark"></div><div class="t-name">暗系</div></div>
+      </div>
+    </div>
+    <div class="set-sec">
+      <div class="set-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.7-4.4-9.3-8.6C1.2 9.9 2.6 6.4 5.6 5.6c1.8-.5 3.7.1 4.9 1.6l1.5 1.8 1.5-1.8c1.2-1.5 3.1-2.1 4.9-1.6 3 .8 4.4 4.3 2.9 6.8C18.7 16.6 12 21 12 21z"/></svg>在一起的日子</div>
+      <div class="set-row" style="flex-direction:column;align-items:stretch;gap:10px">
+        <input class="input" id="set-anniversary" type="date">
+        <button class="btn btn-primary" id="btn-anniversary-save" style="align-self:flex-start">保存纪念日</button>
+        <div class="s-sub" id="set-anniversary-info">—</div>
+      </div>
+    </div>
+    <div class="set-sec">
+      <div class="set-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 21a7 7 0 0114 0"/></svg>账号</div>
+      <div class="set-row">
+        <div>
+          <div class="s-lbl" id="set-current-user">未登录</div>
+          <div class="s-sub" id="set-current-code">账号：—</div>
+        </div>
+        <button class="btn btn-ghost" id="btn-logout">退出登录</button>
+      </div>
+    </div>
+    <div class="note-card">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6l7-3z"/></svg>
+      <div id="note-card-text">本系统为陈立与李烁的双人私有记忆库：两人的心动记录互相可见，共同珍藏每一个心动瞬间，不对外分享。这里的每一条心动，都只属于我们。</div>
+    </div>
+  </section>
+<!-- ===== 秘密空间 ===== -->
+  <section class="view" id="view-secret">
+    <div class="page-head">
+      <button class="back" id="secret-back" aria-label="返回" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <h1>秘密空间</h1>
+    </div>
+    <div class="secret-wrap">
+      <div class="secret-tip">
+        <span class="st-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 118 0v3"/></svg></span>
+        <span>秘密消息 · 只有打开才能看到内容<br>图片看完 5 秒自动销毁，视频 30 秒</span>
+      </div>
+      <div id="secret-list" class="secret-list"></div>
+      <div id="secret-compose" class="secret-compose" style="display:none">
+        <div class="sc-title">发送一条秘密</div>
+        <div class="sc-media-opts">
+          <div class="sc-opt" onclick="pickSecretMedia()"><span class="sc-ico cam">📷</span><span>发图片</span></div>
+          <div class="sc-opt" onclick="pickSecretMedia()"><span class="sc-ico vid">🎬</span><span>发视频</span></div>
+        </div>
+        <input type="file" id="secret-file" accept="image/*,video/*" style="display:none" onchange="secretFilePicked()">
+        <div id="secret-file-preview" class="sc-preview" style="display:none"></div>
+        <input class="input sc-note" id="secret-note" type="text" placeholder="写一句悄悄话（可选）" maxlength="60">
+        <div class="sc-actions">
+          <button class="btn btn-primary" onclick="sendSecret()">发送</button>
+          <button class="btn btn-ghost" onclick="closeSecretCompose()">取消</button>
+        </div>
+      </div>
+      <div id="secret-view" class="secret-view" style="display:none">
+        <div id="secret-media" class="secret-media"></div>
+        <div id="secret-note-view" class="secret-note-view"></div>
+        <div class="secret-burn">
+          <div class="secret-burn-tip">阅后即焚 · 看完后自动销毁</div>
+          <div class="secret-count-wrap">
+            <svg viewBox="0 0 48 48" class="secret-ring-svg">
+              <circle cx="24" cy="24" r="20" class="secret-ring-bg"/>
+              <circle cx="24" cy="24" r="20" class="secret-ring" id="secret-ring"/>
+            </svg>
+            <div class="secret-count-core"><span id="secret-count">5</span><em>秒后销毁</em></div>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary secret-send" id="secret-send-btn" onclick="openSecretCompose()">＋ 发送秘密</button>
+    </div>
+  </section>
+</div>
+
+<!-- ===== 悬浮新建按钮 ===== -->
+<button class="fab" id="fab" aria-label="新建心动记录">
+  <span class="fab-label">新建心动记录</span>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+</button>
+
+    
+
+
+    
+
+  <!-- ===== 底部标签栏 ===== -->
+<nav class="tabbar" id="tabbar">
+  <button class="tab on" data-tab="home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+    首页
+  </button>
+  <button class="tab" data-tab="tags">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13.2L13.2 20 4 10.8V4h6.8L20 13.2z"/><circle cx="8.2" cy="8.2" r="1.4"/></svg>
+    标签
+  </button>
+  <button class="tab" data-tab="timeline">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+    时光轴
+  </button>
+  <button class="tab" data-tab="calendar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+    日历
+  </button>
+  <button class="tab" data-tab="secret">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 118 0v3"/><circle cx="12" cy="15" r="1.3"/></svg>
+    秘密
+  </button>
+  
+  <button class="tab" data-tab="settings">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.6V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.6-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.6-1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3h.1a1.7 1.7 0 001-1.6V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.6h.1a1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9v.1a1.7 1.7 0 001.6 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.6 1z"/></svg>
+    设置
+  </button>
+</nav>
+
+<div id="toast"></div>
+
+<script>
+/* =====================================================================
+ * ★★★ 云端配置：CloudBase 云函数代理（在这里填入你的云函数地址）★★★
+ * ---------------------------------------------------------------------
+ * 说明：飞书开放平台 API 不允许网页直接调用（CORS 限制），
+ *      所以需要经过一个"云函数"中转：
+ *          你的网页 → CloudBase 云函数 → 飞书多维表格 API
+ *      数据仍存在你的飞书多维表格里，UI 与体验不变。
+ *
+ * 开启云端同步（换手机/换电脑重新打开链接数据不丢），请：
+ *   1. 到腾讯云开发 CloudBase 控制台 → 云函数
+ *   2. 新建云函数，名称 feishu-proxy，运行环境 Node.js 18
+ *   3. 把 feishu-proxy/index.js 文件内容粘贴进去，保存部署
+ *   4. 开启该云函数的 HTTP 访问，复制访问地址
+ *      （形如 https://xxx.service.tcb.qcloud.la/feishu-proxy）
+ *   5. 把该地址填到下面 CLOUDBASE_URL 的引号里，保存文件即可
+ *
+ * 飞书的 App ID / App Secret / AppToken / TableId 填在
+ *      feishu-proxy/index.js 文件顶部的 FEISHU 对象里（不在本文件）。
+ * ---------------------------------------------------------------------
+ * 不填（保持空字符串）= 使用本地浏览器存储模式，功能照常可用。
+ * ===================================================================== */
+const CLOUDBASE_URL = 'https://1510542298-eedo959yvr.ap-guangzhou.tencentscf.com';   // ← CloudBase/SCF 云函数 HTTP 访问地址填这里，例如 'https://xxx.service.tcb.qcloud.la/feishu-proxy'
+const CLOUD_ON = !!CLOUDBASE_URL;
+
+/* ---------------- 云端 API 工具（经 CloudBase 云函数代理） ---------------- */
+/* 说明：浏览器不能直接调飞书 API（CORS 限制），所有请求发给 CloudBase 云函数
+ * feishu-proxy，由它在服务器端调飞书并把结果带回。云函数内部已配置飞书凭证。 */
+async function bitableAuth(){
+  /* 探测云函数连通性：读取 1 条记录（云函数会自动完成飞书鉴权） */
+  const res = await fetch(CLOUDBASE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    body: JSON.stringify({ method:'GET', path:'/records?page_size=1' })
+  });
+  const json = await res.json();
+  if(json.code !== 0) throw new Error(json.msg || ('云端连接失败 code ' + json.code));
+  return true;
+}
+async function bitableApi(method, path, body){
+  const res = await fetch(CLOUDBASE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    body: JSON.stringify({ method: method, path: path, body: body === undefined ? null : body })
+  });
+  const json = await res.json();
+  if(json.code !== 0) throw new Error(json.msg || ('云端错误 code ' + json.code));
+  return json.data;
+}
+function bitableError(e){ return (e && e.message) ? e.message : '云端请求失败'; }
+function bs(s){ return String(s==null?'':s); }
+function bj(s, fallback){ try{ const v=JSON.parse(s); return v==null?fallback:v; }catch(e){ return fallback; } }
+/* 云端拉取全部记录：CL/LS 数据共享，不做隔离 */
+async function bitableFetchRecords(){
+  let all = [], pageToken = '';
+  do {
+    let path = '/records?page_size=200' + (pageToken ? '&page_token=' + pageToken : '');
+    const data = await bitableApi('GET', path);
+    all = all.concat(data.items || []);
+    pageToken = data.has_more ? data.page_token : '';
+  } while(pageToken);
+  return all.map(o=>{
+    const f = o.fields || {};
+    return {
+      id: bs(f.id) || o.record_id,
+      cloudId: o.record_id,
+      time: bs(f.time),
+      title: bs(f.title),
+      body: bs(f.body),
+      level: Number(f.level) || 3,
+      mood: bs(f.mood) || '💗',
+      tags: bj(f.tags, []),
+      loc: bs(f.loc),
+      img: bj(f.img, []),
+      draft: bs(f.draft) === '1',
+      author: bs(f.author) || 'shuo',
+      owner: bs(f.owner) || 'chen',
+      replies: bj(f.replies, [])
+    };
+  });
+}
+/* 云端保存记录（有 cloudId 则更新记录，否则新建记录） */
+async function bitableSaveRecord(rec){
+  const fields = {
+    id: bs(rec.id),
+    time: bs(rec.time),
+    title: bs(rec.title),
+    body: bs(rec.body),
+    level: String(rec.level),
+    mood: bs(rec.mood),
+    tags: JSON.stringify(rec.tags||[]),
+    loc: bs(rec.loc),
+    img: JSON.stringify(rec.img||[]),
+    draft: rec.draft ? '1' : '0',
+    author: bs(rec.author),
+    owner: bs(rec.owner),
+    replies: JSON.stringify(rec.replies||[])
+  };
+  if(rec.cloudId){
+    await bitableApi('PUT', '/records/' + rec.cloudId, { fields });
+  }else{
+    const data = await bitableApi('POST', '/records', { fields });
+    rec.cloudId = data.record && data.record.record_id;
+  }
+}
+async function bitableDeleteRecord(rec){
+  if(rec.cloudId) await bitableApi('DELETE', '/records/' + rec.cloudId);
+}
+
+/* ================= 数据层 ================= *//* ================= 数据层 ================= *//* ================= 数据层 ================= */
+const STORE_KEY = 'lishuo_heartbeat_v1';
+const PRESET_TAGS = ['牵手','对视','聊天','见面','晚安','小惊喜'];
+const MOODS = ['💗','🌸','☀️','🌙','🍰','✨'];
+
+let records = [];
+let settings = { slogan:'和李烁的心动碎片', theme:'light', anniversary:'2025-10-18', marks:{}, cloudId:null };
+let currentUser = null;    // 当前登录用户: 'chen' | 'shuo' | null
+let currentTag = '全部';
+let calYear = 0, calMonth = 0;  // 当前日历视图的年月
+let editingId = null;      // 编辑中的记录 id（null = 新建）
+let imgPreviews = [];      // 配图本地预览 URL（演示用）
+
+/* 种子数据：相对当前日期生成，保证时光轴/本月统计始终有内容 */
+function daysAgo(n,h,m){const d=new Date();d.setDate(d.getDate()-n);d.setHours(h,m,0,0);return d;}
+function iso(d){const p=x=>String(x).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes());}
+function dateKey(d){const p=x=>String(x).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());}
+const SEED_MARKS = (function(){
+  const m={};
+  [3,15,45,90,200].forEach(n=>{ m[dateKey(daysAgo(n,0,0))]='heart'; });
+  [8,27,60,120,300].forEach(n=>{ m[dateKey(daysAgo(n,0,0))]='star'; });
+  return m;
+})();
+const SEEDS = [
+  {id:'s1',time:iso(daysAgo(1,20,14)),title:'散步时他牵住了我的手',body:'晚饭后沿江边散步，风有点凉。他突然自然地握住我的手，放进他的外套口袋。那一瞬间心跳漏了一拍，路灯下我们都假装没在看对方。',tags:['牵手','见面'],level:5,mood:'💗',loc:'江边步道',img:[],draft:false,author:'shuo',replies:[{author:'chen',time:iso(daysAgo(1,21,5)),text:'那天其实我手心都是汗，怕你发现。但你的手软软的，我舍不得放。'}]},
+  {id:'s2',time:iso(daysAgo(4,22,30)),title:'晚安语音的最后一句',body:'睡前收到他发来的语音，前前后后都是琐碎的日常，最后一句是“今天也想你了，晚安”。来来回回听了三遍。',tags:['晚安'],level:3,mood:'🌙',loc:'',img:[],draft:false,author:'chen',replies:[{author:'shuo',time:iso(daysAgo(4,23,10)),text:'录了好多遍才敢发出去，那句“想你了”是真心的。'}]},
+  {id:'s3',time:iso(daysAgo(8,17,20)),title:'一起逛超市的日常',body:'一起推着购物车在货架间慢慢走，他把我爱吃的东西一样样放进车里，说“这个你上次说喜欢”。平凡的日子，因为身边是他，就变得很好。',tags:['见面','聊天'],level:3,mood:'☀️',loc:'社区超市',img:[],draft:false,author:'shuo',replies:[{author:'chen',time:iso(daysAgo(8,18,2)),text:'你上次说喜欢的每一样我都记着呢，想把你爱吃的都搬回家。'}]},
+  {id:'s4',time:iso(daysAgo(15,19,40)),title:'电影散场后的对视三秒',body:'散场灯光亮起，我们同时转头看向对方，对视了三秒。他先笑了，说“你眼睛里有星星”。那三秒比整部电影都难忘。',tags:['对视'],level:4,mood:'✨',loc:'电影院门口',img:[],draft:false,author:'chen',replies:[{author:'shuo',time:iso(daysAgo(15,20,15)),text:'下次再对视，我不先笑了，看谁先认输。'}]},
+  {id:'s5',time:iso(daysAgo(26,12,0)),title:'他记得我不吃香菜',body:'在小馆子吃饭，我还没开口，他就把碗里的香菜一根根挑走，说“上次看你都不吃”。原来被记住的细节，会让人心动很久。',tags:['聊天','小惊喜'],level:4,mood:'🍰',loc:'楼下小馆',img:[],draft:false,author:'chen',replies:[{author:'shuo',time:iso(daysAgo(26,12,40)),text:'你低头挑香菜的样子特别可爱，以后我都帮你挑。'}]},
+  {id:'s6',time:iso(daysAgo(55,21,10)),title:'口袋里翻出的糖',body:'晚上回家，他神秘兮兮地让我翻他口袋，摸到一颗水果糖。他说路过糖果店时想到我喜欢，就买了一颗。甜甜的，和他一样。',tags:['小惊喜'],level:5,mood:'💗',loc:'回家路上',img:[],draft:false,author:'shuo',replies:[{author:'chen',time:iso(daysAgo(55,21,30)),text:'看到你吃到糖眼睛弯起来的样子，比糖还甜。'}]},
+  {id:'s7',time:iso(daysAgo(95,15,30)),title:'第一次一起看日落',body:'爬了四十分钟的坡，赶在日落前到达山顶。他指着天边说：“以后每个好看的日落，都想和你一起看。”风很大，心里很满。',tags:['见面'],level:5,mood:'🌸',loc:'南山观景台',img:[],draft:false,author:'chen',replies:[{author:'shuo',time:iso(daysAgo(95,16,20)),text:'好，以后的每一个日落，都算数。'}]},
+];
+
+let usersStore = { chen:[], shuo:[] };  // 本地模式记录（数据共享，按 author 分流存储）
+
+function load(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(STORE_KEY));
+    if(raw && (raw.records || raw.users)){
+      // 兼容旧版：records 平铺 → 按 author 拆到各账号
+      let src = raw.users || { chen:[], shuo:[] };
+      if(raw.records && !raw.users){
+        src = { chen:[], shuo:[] };
+        raw.records.forEach(r=>{ (r.author==='shuo'?src.shuo:src.chen).push(r); });
+      }
+      ['chen','shuo'].forEach(u=>{
+        if(!Array.isArray(src[u])) src[u] = [];
+        src[u] = src[u].map(r=>({...r, author:r.author||u, replies:r.replies||[], img:(r.img||[]).filter(x=>typeof x==='string')}));
+      });
+      usersStore = src;
+      settings = Object.assign({ slogan:'和李烁的心动碎片', theme:'light', anniversary:'2025-10-18', marks:{} }, raw.settings||{});
+      if(!settings.marks || typeof settings.marks!=='object') settings.marks = {};
+      Object.keys(settings.marks).forEach(k=>{ if(settings.marks[k]!=='star' && settings.marks[k]!=='heart') settings.marks[k]='heart'; });
+      currentUser = raw.currentUser || null;
+      // 数据共享：登录后合并查看两人的全部记录
+      records = currentUser ? [...(usersStore.chen||[]), ...(usersStore.shuo||[])].slice() : [];
+    }
+    else {
+      // 首次使用：种子数据按作者拆给两个账号
+      usersStore = { chen: SEEDS.filter(r=>r.author==='chen'), shuo: SEEDS.filter(r=>r.author==='shuo') };
+      settings.marks = Object.assign({}, SEED_MARKS);
+      records = [];
+      persist();
+    }
+  }catch(e){
+    usersStore = { chen: SEEDS.filter(r=>r.author==='chen'), shuo: SEEDS.filter(r=>r.author==='shuo') };
+    settings.marks = Object.assign({}, SEED_MARKS);
+    records = [];
+    persist();
+  }
+  document.documentElement.setAttribute('data-theme', settings.theme);
+}
+function persist(){
+  // 超管为只读视角：不写回任何账号的私有记录；普通账号按署名分流存储（数据共享）
+  if(currentUser && !isAdmin()){
+    usersStore.chen = records.filter(r=>r.author==='chen'||r.owner==='chen');
+    usersStore.shuo = records.filter(r=>r.author==='shuo'||r.owner==='shuo');
+  }
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify({ users: usersStore, settings, currentUser })); }catch(e){}
+}
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2000); }
+
+/* ================= 登录 ================= */
+/* 隐藏超管账号：不显示在登录页，输入 ROOT/ADMIN/SUPER 进入，可查看全部内容（只读） */
+const ADMIN_CODE = ['ROOT','ADMIN','SUPER'];
+function isAdmin(){ return currentUser === 'admin'; }
+/* 登录密码：CL=CLALS / LS=LSACL（超管 ROOT/ADMIN/SUPER 无需密码） */
+const ACCOUNT_PWD = { chen:'CLALS', shuo:'LSACL' };
+async function doLogin(user){
+  if(!AUTHORS[user] && user !== 'admin'){ toast('账号不存在'); return; }
+  if(user !== 'admin'){
+    const pwd = prompt('请输入「' + AUTHORS[user].name + '」的登录密码：');
+    if(pwd == null) return;
+    if(String(pwd).trim().toUpperCase() !== ACCOUNT_PWD[user]){ toast('密码错误，请重试'); return; }
+  }
+  if(CLOUD_ON){
+    // 云端模式：获取飞书凭证 → 拉取全部数据（CL/LS 共享可见）
+    try{
+      toast('正在连接云端…');
+      await bitableAuth();
+      currentUser = user;
+      await pullFromCloud(user);
+      persist();
+      toast(isAdmin() ? '已进入管理员视角' : '欢迎回来，' + AUTHORS[user].name);
+      renderHome(); renderSettings();
+      go('home');
+    }catch(e){
+      toast('云端连接失败：' + bitableError(e));
+      currentUser = null;
+      show('login');
+    }
+  } else {
+    // 本地模式：直接切换账号（CL/LS 数据共享，互相可见）
+    currentUser = user;
+    if(isAdmin()) records = [...(usersStore.chen||[]), ...(usersStore.shuo||[])].slice();
+    else records = [...(usersStore.chen||[]), ...(usersStore.shuo||[])].slice();   // 共享可见
+    persist();
+    toast(isAdmin() ? '已进入管理员视角' : '欢迎回来，' + AUTHORS[user].name);
+    renderHome(); renderSettings();
+    go('home');
+  }
+}
+function doLogout(){
+  currentUser = null;
+  records = [];
+  persist();
+  show('login');
+}
+function isLoggedIn(){ return !!currentUser; }
+
+/* 云端拉取全部记录（两人共享可见；标语/纪念日/日历标记仍存本地） */
+async function pullFromCloud(user){
+  const list = await bitableFetchRecords();   // 拉全部：陈立与李烁互相可见
+  records = list.map(r=>{
+    if(!r.id) r.id = uid();
+    if(!Array.isArray(r.replies)) r.replies = [];
+    if(!Array.isArray(r.img)) r.img = [];
+    if(!r.author) r.author = (r.owner==='chen'?'chen':'shuo');
+    return r;
+  });
+  // 云端记录不回写本地 usersStore，避免本地模式泄漏；但保持 settings 缓存
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify({ users: usersStore, settings, currentUser: user })); }catch(e){}
+}
+/* 设置项（标语/纪念日/日历标记/主题）保存在本地浏览器，无需同步云端 */
+async function pushSettingsToCloud(){}
+
+/* ================= 工具 ================= */
+const AUTHORS = { chen:{name:'陈立',cls:'chen',initial:'陈'}, shuo:{name:'李烁',cls:'shuo',initial:'李'} };
+function authorBadge(a){ if(!a) return ''; const A=AUTHORS[a]||AUTHORS.chen; return `<span class="author-badge ${A.cls}">${A.name}</span>`; }
+function authorAvatar(a,size){ const A=AUTHORS[a]||AUTHORS.chen; return `<span class="${size?'couple-avatar':'ra'} ${A.cls}">${A.initial}</span>`; }
+function uid(){ return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function fmtTime(isoStr){ const d=new Date(isoStr); const p=x=>String(x).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+function fmtDay(isoStr){ const d=new Date(isoStr); const p=x=>String(x).padStart(2,'0'); return `${d.getFullYear()}年${p(d.getMonth()+1)}月${p(d.getDate())}日`; }
+function starsHTML(level){ let h='<div class="stars">'; for(let i=1;i<=5;i++){ h+=`<svg viewBox="0 0 24 24" ${i<=level?'fill="#E8A75C" stroke="#E8A75C"':'fill="none" stroke="currentColor"'} stroke-width="1.6"><path d="M12 2.5l2.9 6.2 6.8.8-5.1 4.6 1.4 6.7L12 17.4l-6 3.4 1.4-6.7L2.3 9.5l6.8-.8z"/></svg>`; } return h+'</div>'; }
+function allTags(){ const map={}; records.filter(r=>!isSecret(r)).forEach(r=>r.tags.forEach(t=>{map[t]=(map[t]||0)+1})); return Object.entries(map).sort((a,b)=>b[1]-a[1]); }
+function isSecret(r){ return r && Array.isArray(r.tags) && r.tags.includes('secret'); }
+function isMediaVideo(u){ return typeof u==='string' && u.indexOf('data:video')===0; }
+function published(){ return records.filter(r=>!r.draft && !isSecret(r)); }
+function monthCount(){ const now=new Date(); return published().filter(r=>{const d=new Date(r.time);return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();}).length; }
+function replyCount(){ return records.reduce((s,r)=>s+(r.replies?r.replies.length:0),0); }
+
+/* ================= 路由 ================= */
+const views = ['login','home','editor','detail','calendar','tags','timeline','settings','secret'];
+function show(view){
+  // 登录守卫：未登录只能看登录页
+  if(!isLoggedIn() && view!=='login') view = 'login';
+  views.forEach(v=>document.getElementById('view-'+v).classList.toggle('active', v===view));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on', t.dataset.tab===view));
+  // 悬浮按钮：登录页隐藏，其余页面全局可见；超管为只读视角，隐藏新建按钮
+  const logged = isLoggedIn();
+  document.getElementById('fab').style.display = logged && view!=='login' && !isAdmin() ? 'flex' : 'none';
+  document.getElementById('tabbar').style.display = logged && view!=='login' ? 'flex' : 'none';
+}
+function go(view){
+  show(view);
+  if(view==='home') renderHome();
+  if(view==='tags') renderTags();
+  if(view==='timeline') renderTimeline();
+  if(view==='settings') renderSettings();
+  if(view==='calendar') renderCalendar();
+  if(view==='secret') renderSecret();
+}
+
+/* ================= 恋爱天数 & 日历 ================= */
+function loveDays(){
+  const a=new Date(settings.anniversary+'T00:00:00');
+  const today=new Date(); today.setHours(0,0,0,0);
+  const diff=Math.floor((today-a)/86400000);
+  return Math.max(0,diff+1); // 在一起当天算第1天
+}
+function renderLoveDays(){
+  const days=loveDays();
+  document.getElementById('ld-num').innerHTML = days+'<small> 天</small>';
+  const a=settings.anniversary.replace(/-/g,'.');
+  document.getElementById('ld-sub').textContent = '自 '+a+' 在一起 · 每一页都是我们的';
+}
+function renderCalendar(){
+  const now=new Date();
+  if(!calYear){ calYear=now.getFullYear(); calMonth=now.getMonth(); }
+  document.getElementById('cal-title').textContent = calYear+'年'+(calMonth+1)+'月';
+  document.getElementById('cal-today').style.display = (calYear===now.getFullYear() && calMonth===now.getMonth()) ? 'none' : 'block';
+  const grid=document.getElementById('cal-grid');
+  const first=new Date(calYear,calMonth,1);
+  const startWeek=first.getDay(); // 0=周日
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const todayKey=dateKey(now);
+  let html='';
+  ['日','一','二','三','四','五','六'].forEach(w=>{ html+=`<div class="cal-week">${w}</div>`; });
+  // 前月补齐
+  const prevDays=new Date(calYear,calMonth,0).getDate();
+  for(let i=startWeek-1;i>=0;i--){
+    const d=prevDays-i; const dt=new Date(calYear,calMonth-1,d);
+    const key=dateKey(dt);
+    html+=`<div class="cal-day other"><span>${d}</span></div>`;
+  }
+  // 当月
+  for(let d=1;d<=daysInMonth;d++){
+    const dt=new Date(calYear,calMonth,d); const key=dateKey(dt);
+    const isToday=key===todayKey;
+    const marked=settings.marks[key];
+    const future=dt>now;
+    html+=`<div class="cal-day${isToday?' today':''}${future?' future':''}${marked==='heart'?' has-heart':''}${marked==='star'?' has-star':''}" data-key="${key}" ${future?'':'onclick="openCalPicker(this)"'}>
+      <span>${d}</span>
+      ${marked==='heart'?'<span class="cal-mark heart"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.4-9.3-8.6C1.2 9.9 2.6 6.4 5.6 5.6c1.8-.5 3.7.1 4.9 1.6l1.5 1.8 1.5-1.8c1.2-1.5 3.1-2.1 4.9-1.6 3 .8 4.4 4.3 2.9 6.8C18.7 16.6 12 21 12 21z"/></svg></span>':''}
+      ${marked==='star'?'<span class="cal-mark star"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.2 6.8.8-5.1 4.6 1.4 6.7L12 17.4l-6 3.4 1.4-6.7L2.3 9.5l6.8-.8z"/></svg></span>':''}
+    </div>`;
+  }
+  // 后月补齐至完整一周
+  const total=startWeek+daysInMonth;
+  const remainder=total%7;
+  if(remainder!==0){ for(let i=1;i<=7-remainder;i++){ const dt=new Date(calYear,calMonth+1,i); html+=`<div class="cal-day other"><span>${i}</span></div>`; } }
+  grid.innerHTML=html;
+}
+let calPickKey = null; // 正在选择标记的日期 key
+function openCalPicker(el){
+  calPickKey = el.dataset.key;
+  const d=new Date(calPickKey+'T00:00:00');
+  document.getElementById('cal-picker-title').innerHTML = '标记 · <b>'+(d.getMonth()+1)+'月'+d.getDate()+'日</b>';
+  const cur = settings.marks[calPickKey];
+  document.getElementById('cp-heart').classList.toggle('on', cur==='heart');
+  document.getElementById('cp-star').classList.toggle('on', cur==='star');
+  document.getElementById('cp-cancel').style.display = cur ? 'flex' : 'none';
+  document.getElementById('cal-picker').classList.add('show');
+}
+function setCalMark(kind){
+  if(kind==='none'){ delete settings.marks[calPickKey]; toast('已取消标记'); }
+  else { settings.marks[calPickKey]=kind; toast(kind==='heart'?'已标记 ❤ 心动日常':'已标记 ★ 特别的日子'); }
+  persist(); hideCalPicker(); renderCalendar();
+  pushSettingsToCloud();
+}
+function hideCalPicker(){ document.getElementById('cal-picker').classList.remove('show'); }
+
+/* ================= 首页 ================= */
+function renderHome(){
+  document.getElementById('slogan').textContent = settings.slogan;
+  document.getElementById('cur-user').textContent = isAdmin() ? '管理员' : (currentUser ? AUTHORS[currentUser].name : '—');
+  renderLoveDays();
+  const pub = published().sort((a,b)=>new Date(b.time)-new Date(a.time));
+  document.getElementById('stat-total').textContent = pub.length;
+  document.getElementById('stat-month').textContent = monthCount();
+  // 双账号统计：数据共享，两人都显示各自发布的数量
+  if(isAdmin()){
+    const chenN = published().filter(r=>r.author==='chen').length;
+    const shuoN = published().filter(r=>r.author==='shuo').length;
+    document.getElementById('cs-chen').style.display = '';
+    document.getElementById('cs-heart').style.display = '';
+    document.getElementById('cs-sho').style.display = '';
+    document.getElementById('stat-chen').textContent = chenN;
+    document.getElementById('stat-sho').textContent = shuoN;
+  } else {
+    const chenN = published().filter(r=>r.author==='chen').length;
+    const shuoN = published().filter(r=>r.author==='shuo').length;
+    document.getElementById('cs-chen').style.display = '';
+    document.getElementById('cs-heart').style.display = '';
+    document.getElementById('cs-sho').style.display = '';
+    document.getElementById('stat-chen').textContent = chenN;
+    document.getElementById('stat-sho').textContent = shuoN;
+  }
+  const best = pub.length ? pub.slice().sort((a,b)=>(b.level-a.level)||(new Date(b.time)-new Date(a.time)))[0] : null;
+  document.getElementById('hl-title').textContent = best ? best.title : '还没有心动记录';
+  document.getElementById('hl-meta').innerHTML = best ? `${authorBadge(best.author)} ${fmtDay(best.time)} · ${best.level}星心动` : '点击右下角开始记录';
+  const flow = document.getElementById('home-flow');
+  if(!records.length){ flow.innerHTML = emptyHTML(); return; }
+  const list = records.slice().sort((a,b)=>new Date(b.time)-new Date(a.time));
+  flow.innerHTML = list.map(cardHTML).join('');
+}
+
+function cardHTML(r){
+  return `<div class="mcard" onclick="openDetail('${r.id}')">
+    <div class="row1"><div class="m-title">${esc(r.title)}</div>${r.mood?`<div class="m-mood">${r.mood}</div>`:''}</div>
+    ${starsHTML(r.level)}
+    ${r.body?`<div class="m-body">${esc(r.body)}</div>`:''}
+    <div class="m-foot">
+      <span class="m-time">${fmtTime(r.time)}</span>
+      ${authorBadge(r.author)}
+      ${r.draft?'<span class="draft-badge">草稿</span>':''}
+    </div>
+  </div>`;
+}
+
+/* ================= 编辑页 ================= */
+let editorState = { author:'shuo', title:'', body:'', level:3, mood:'💗', tags:[], loc:'', time:'', img:[] };
+function renderAuthorPicker(){
+  const box=document.getElementById('f-author-picker'); box.innerHTML='';
+  // 记录人固定为登录本人账号（编辑对方记录时保持原作者署名，不可切换）
+  const a = AUTHORS[editorState.author] ? editorState.author : (currentUser||'shuo');
+  const A = AUTHORS[a];
+  const b=document.createElement('div');
+  b.className='author-opt on';
+  b.innerHTML=`<span class="ao-av ${A.cls}">${A.initial}</span>${A.name}<span class="ao-note">记录人</span>`;
+  box.appendChild(b);
+}
+function renderStars(){
+  const box=document.getElementById('f-stars');
+  box.innerHTML='';
+  for(let i=1;i<=5;i++){
+    const b=document.createElement('button');
+    b.className=i<=editorState.level?'on':'';
+    b.setAttribute('aria-label',i+'星');
+    b.innerHTML=`<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1"><path d="M12 2.5l2.9 6.2 6.8.8-5.1 4.6 1.4 6.7L12 17.4l-6 3.4 1.4-6.7L2.3 9.5l6.8-.8z"/></svg>`;
+    b.onclick=()=>{ editorState.level=i; renderStars(); hint(i); };
+    box.appendChild(b);
+  }
+}
+function hint(l){ const t=['','青涩心动','有点心动','怦然心动','深深心动','此生难忘心动']; document.getElementById('f-star-hint').textContent=t[l]; }
+function renderMoods(){
+  const box=document.getElementById('f-moods'); box.innerHTML='';
+  MOODS.forEach(m=>{ const b=document.createElement('button'); b.className='mood'+(m===editorState.mood?' on':''); b.textContent=m; b.onclick=()=>{editorState.mood=m;renderMoods();}; box.appendChild(b); });
+}
+function renderTagChips(){
+  const box=document.getElementById('f-tags'); box.innerHTML='';
+  const merged = [...new Set([...PRESET_TAGS, ...records.flatMap(r=>r.tags), ...editorState.tags])];
+  merged.forEach(t=>{
+    const c=document.createElement('span');
+    c.className='chip'+(editorState.tags.includes(t)?' on':'');
+    c.textContent=t;
+    c.onclick=()=>{ editorState.tags = editorState.tags.includes(t)? editorState.tags.filter(x=>x!==t) : [...editorState.tags,t]; renderTagChips(); };
+    box.appendChild(c);
+  });
+}
+function openEditor(id){
+  if(isAdmin()){ toast('管理员为只读视角，不能编辑记录'); return; }
+  const r = id ? records.find(x=>x.id===id) : null;
+  if(r && r.author !== currentUser){ toast('只能编辑自己发布的心动记录'); return; }
+  editingId = id||null;
+  document.getElementById('editor-title').textContent = r ? '编辑心动记录' : '新建心动记录';
+  editorState = r
+    ? { author:r.author||'shuo', title:r.title, body:r.body, level:r.level, mood:r.mood||'💗', tags:r.tags.slice(), loc:r.loc||'', time:r.time, img:r.img.slice() }
+    : { author:currentUser||'shuo', title:'', body:'', level:3, mood:'💗', tags:[], loc:'', time:iso(new Date()), img:[] };
+  imgPreviews = editorState.img.slice();
+  document.getElementById('f-title').value = editorState.title;
+  document.getElementById('f-body').value = editorState.body;
+  document.getElementById('f-loc').value = editorState.loc;
+  document.getElementById('f-time').value = editorState.time;
+  document.getElementById('btn-del').hidden = !r;
+  renderAuthorPicker(); renderStars(); renderMoods(); renderTagChips(); renderImgPreview();
+  go('editor');
+}
+function renderImgPreview(){
+  const box=document.getElementById('f-img-preview');
+  box.innerHTML = imgPreviews.map((u,i)=>`
+    <div class="preview-item">
+      <img src="${u}" alt="相片${i+1}">
+      <button class="p-del" onclick="removeImg(${i})" aria-label="删除相片${i+1}">✕</button>
+    </div>`).join('');
+}
+function removeImg(i){
+  imgPreviews.splice(i,1);
+  renderImgPreview();
+}
+/* 相片：转 base64 压缩后本地持久化（刷新不丢） */
+function fileToDataUrl(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result);
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
+  });
+}
+function compressImage(dataUrl){
+  // 云端模式：压缩更小（base64 存入飞书多维表格 img 字段，控制体积）；本地模式：保持 1280/0.82
+  const maxDim = CLOUD_ON ? 720 : 1280;
+  const q = CLOUD_ON ? 0.7 : 0.82;
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.onload=()=>{
+      let {width:w,height:h}=img;
+      if(w>maxDim||h>maxDim){ const r=Math.min(maxDim/w,maxDim/h); w=Math.round(w*r); h=Math.round(h*r); }
+      const c=document.createElement('canvas'); c.width=w; c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      resolve(c.toDataURL('image/jpeg',q));
+    };
+    img.onerror=()=>resolve(dataUrl);
+    img.src=dataUrl;
+  });
+}
+
+/* ================= 详情页 ================= */
+function openDetail(id){
+  const r=records.find(x=>x.id===id); if(!r)return;
+  const body=document.getElementById('detail-body');
+  const replies=(r.replies||[]);
+  const replyHTML = replies.length
+    ? replies.map((x,xi)=>{
+        const A=AUTHORS[x.author]||AUTHORS.chen;
+        const canDel = !isAdmin() && currentUser && x.author===currentUser;
+        return `<div class="reply-item"><span class="ra ${A.cls}">${A.initial}</span><div class="rb"><div class="rh"><span class="rn">${A.name}</span><span class="rt">${fmtTime(x.time)}</span>${canDel?`<button class="reply-del" onclick="delReply('${r.id}',${xi})" aria-label="删除回应">✕</button>`:''}</div><div class="rtxt">${esc(x.text)}</div></div></div>`;
+      }).join('')
+    : '<div class="reply-empty">还没有心动回应<br>写下你想对TA说的话吧</div>';
+  body.innerHTML = `
+    <div class="d-time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>${fmtTime(r.time)}${r.draft?' · 草稿':''}</div>
+    <div class="d-title">${esc(r.title)}</div>
+    ${starsHTML(r.level)}
+    <div class="d-meta">
+      ${r.mood?`<div class="d-mood">${r.mood}</div>`:''}
+      ${authorBadge(r.author)}
+      ${r.loc?`<div class="d-loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 1114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>${esc(r.loc)}</div>`:''}
+    </div>
+    ${r.tags.length?`<div class="d-tags">${r.tags.map(t=>`<span class="chip on">${esc(t)}</span>`).join('')}</div>`:''}
+    ${r.img.length?`<div class="d-imgs">${r.img.map((u,i)=>`<img src="${u}" alt="相片${i+1}">`).join('')}</div>`:''}
+    <div class="d-body">${esc(r.body||'（暂无正文）')}</div>
+    ${isAdmin()?'':`<div class="reply-sec">
+      <div class="r-title"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.4-9.3-8.6C1.2 9.9 2.6 6.4 5.6 5.6c1.8-.5 3.7.1 4.9 1.6l1.5 1.8 1.5-1.8c1.2-1.5 3.1-2.1 4.9-1.6 3 .8 4.4 4.3 2.9 6.8C18.7 16.6 12 21 12 21z"/></svg>心动回应</div>
+      <div class="reply-list">${replyHTML}</div>
+      <div class="reply-write">
+        <input class="input" id="reply-input" placeholder="写下对TA的回应…" maxlength="100">
+        <button class="btn btn-primary" id="reply-send">回应</button>
+      </div>
+    </div>`}
+    ${(isAdmin()||r.author!==currentUser)?'':`<div class="d-actions">
+      <button class="btn btn-ghost" onclick="openEditor('${r.id}')">编辑</button>
+      <button class="btn btn-danger" onclick="deleteRecord('${r.id}')">删除</button>
+    </div>`}`;
+  if(!isAdmin()){
+    document.getElementById('reply-send').onclick=()=>sendReply(r.id);
+    document.getElementById('reply-input').addEventListener('keydown',e=>{ if(e.key==='Enter') sendReply(r.id); });
+  }
+  show('detail');
+}
+async function sendReply(id){
+  const r=records.find(x=>x.id===id); if(!r)return;
+  const input=document.getElementById('reply-input');
+  const text=input.value.trim();
+  if(!text){ toast('先写下你想说的话'); return; }
+  r.replies = r.replies||[];
+  r.replies.push({author: currentUser||(r.author==='chen'?'shuo':'chen'), time:iso(new Date()), text});
+  if(CLOUD_ON && currentUser){
+    try{ await bitableSaveRecord(r); }
+    catch(e){ toast('回应云端同步失败：' + bitableError(e)); }
+  }
+  persist(); toast('回应已送达TA的心动瞬间');
+  openDetail(id);
+}
+async function delReply(id, ri){
+  const r=records.find(x=>x.id===id); if(!r) return;
+  const rep=r.replies||[];
+  if(ri<0 || ri>=rep.length) return;
+  if(rep[ri].author !== currentUser){ toast('只能删除自己的回应'); return; }
+  if(!confirm('删除这条回应吗？')) return;
+  rep.splice(ri,1);
+  if(CLOUD_ON && currentUser){
+    try{ await bitableSaveRecord(r); }
+    catch(e){ toast('云端同步失败：'+bitableError(e)); return; }
+  }
+  persist(); toast('回应已删除');
+  openDetail(id);
+}
+
+/* ================= 秘密空间 ================= */
+let secretCurrent = null;
+let secretTimer = null;
+function renderSecret(){
+  clearInterval(secretTimer); secretTimer=null;
+  secretCurrent = null;
+  document.getElementById('secret-compose').style.display='none';
+  document.getElementById('secret-view').style.display='none';
+  document.getElementById('secret-send-btn').style.display='';
+  const list=document.getElementById('secret-list');
+  list.style.display='';
+  const secs = records.filter(r=>isSecret(r)).sort((a,b)=>new Date(b.time)-new Date(a.time));
+  if(!secs.length){ list.innerHTML=`<div class="empty"><p>还没有秘密消息<br>发送一条只属于你们俩的吧</p></div>`; return; }
+  list.innerHTML = secs.map(r=>{
+    const A=AUTHORS[r.author]||AUTHORS.chen;
+    const isVid = (r.img||[]).some(u=>isMediaVideo(u));
+    return `<div class="secret-item" onclick="openSecretView('${r.id}')">
+      <span class="ra ${A.cls}">${A.initial}</span>
+      <div class="secret-item-main">
+        <div class="secret-item-h"><span class="rn">${A.name}</span><span class="rt">${fmtTime(r.time)}</span></div>
+        <div class="secret-item-t">${isVid?'🎬 视频':'📷 图片'}${r.body?(' · '+esc(r.body.slice(0,18))):''}</div>
+      </div>
+      <span class="secret-lock">🔒</span>
+    </div>`;
+  }).join('');
+}
+function openSecretCompose(){
+  const c=document.getElementById('secret-compose');
+  const show = c.style.display==='none';
+  c.style.display = show ? 'block' : 'none';
+  if(show){
+    document.getElementById('secret-file').value='';
+    document.getElementById('secret-note').value='';
+    document.getElementById('secret-file-preview').style.display='none';
+  }
+}
+function closeSecretCompose(){ document.getElementById('secret-compose').style.display='none'; }
+function pickSecretMedia(){ document.getElementById('secret-file').click(); }
+function secretFilePicked(){
+  const f=document.getElementById('secret-file').files[0];
+  const pv=document.getElementById('secret-file-preview');
+  if(!f){ pv.style.display='none'; return; }
+  if(f.type.indexOf('image')===0){
+    const rd=new FileReader();
+    rd.onload=()=>{ pv.innerHTML=`<img src="${rd.result}" alt="预览">`; pv.style.display=''; };
+    rd.readAsDataURL(f);
+  } else {
+    pv.innerHTML=`<div class="sc-file-name">🎬 ${esc(f.name)}</div>`;
+    pv.style.display='';
+  }
+}
+async function sendSecret(){
+  const file=document.getElementById('secret-file').files[0];
+  if(!file){ toast('请选择要发送的图片或视频'); return; }
+  if(file.type.indexOf('video')===0 && file.size > 2*1024*1024){ toast('视频太大，请选 2MB 以内的小视频'); return; }
+  toast('正在加密处理…');
+  let dataUrl;
+  try{
+    dataUrl = await fileToDataUrl(file);
+    if(file.type.indexOf('image')===0) dataUrl = await compressImage(dataUrl);
+  }catch(e){ toast('读取文件失败'); return; }
+  const note=document.getElementById('secret-note').value.trim();
+  const rec = { id: uid(), time: iso(new Date()), title:'秘密消息', body:note||'', level:0, mood:'', tags:['secret'], loc:'', img:[dataUrl], draft:false, author:currentUser, owner:currentUser, replies:[] };
+  if(CLOUD_ON && currentUser){
+    try{ await bitableSaveRecord(rec); }
+    catch(e){ toast('云端保存失败：'+bitableError(e)); return; }
+  }
+  records.unshift(rec);
+  persist(); toast('秘密已送达，TA打开后才能看到');
+  renderSecret();
+}
+function startSecretCountdown(total){
+  clearInterval(secretTimer); secretTimer=null;
+  const ring=document.getElementById('secret-ring');
+  const num=document.getElementById('secret-count');
+  const em=document.querySelector('.secret-count-core em');
+  const R=20, C=2*Math.PI*R;
+  ring.style.strokeDasharray = C;
+  if(total<=0){
+    // 等待状态：视频播放中，不销毁
+    num.textContent = '▶';
+    em.textContent = '播放完销毁';
+    ring.style.strokeDashoffset = 0;
+    return;
+  }
+  let remain = total;
+  num.textContent = total;
+  em.textContent = '秒后销毁';
+  ring.style.strokeDashoffset = 0;
+  secretTimer = setInterval(()=>{
+    remain -= 0.1;
+    if(remain<=0){
+      clearInterval(secretTimer); secretTimer=null;
+      num.textContent = '0';
+      ring.style.strokeDashoffset = C;
+      autoBurn();
+      return;
+    }
+    num.textContent = Math.ceil(remain);
+    ring.style.strokeDashoffset = C * (1 - remain/total);
+  }, 100);
+}
+function openSecretView(id){
+  const r=records.find(x=>x.id===id); if(!r || !isSecret(r)) return;
+  secretCurrent = id;
+  const box=document.getElementById('secret-media');
+  const u=(r.img||[])[0];
+  const isVid = isMediaVideo(u);
+  box.innerHTML = u
+    ? (isVid ? `<video src="${u}" controls playsinline></video>` : `<img src="${u}" alt="秘密">`)
+    : '<div class="secret-none">（无媒体内容）</div>';
+  document.getElementById('secret-note-view').textContent = r.body || '';
+  document.getElementById('secret-note-view').style.display = r.body ? '' : 'none';
+  document.getElementById('secret-list').style.display='none';
+  document.getElementById('secret-compose').style.display='none';
+  document.getElementById('secret-send-btn').style.display='none';
+  document.getElementById('secret-view').style.display='block';
+  // 阅后即焚：图片打开 5 秒自动销毁；视频播放完后再等 30 秒销毁
+  if(isVid){
+    const v=box.querySelector('video');
+    startSecretCountdown(0);   // 播放中状态，不销毁
+    if(v){
+      v.onended = ()=>{ startSecretCountdown(30); };
+      v.onplay = ()=>{ if(!secretTimer) startSecretCountdown(0); };
+    }
+  } else {
+    startSecretCountdown(5);
+  }
+}
+function autoBurn(){
+  if(!secretCurrent) return;
+  const r=records.find(x=>x.id===secretCurrent); if(!r) return;
+  secretCurrent = null;
+  (async()=>{
+    if(CLOUD_ON && currentUser){
+      try{ await bitableDeleteRecord(r); }catch(e){}
+    }
+    records = records.filter(x=>x.id!==r.id);
+    persist(); toast('秘密已自动销毁');
+    renderSecret();
+  })();
+}
+
+
+/* ================= 标签页 ================= */
+function renderTags(){
+  const chipsBox=document.getElementById('tag-chips'); chipsBox.innerHTML='';
+  const rs = records.filter(r=>!isSecret(r));
+  const all=[['全部',rs.length],...allTags()];
+  all.forEach(([t,n])=>{
+    const c=document.createElement('span');
+    c.className='chip'+(currentTag===t?' on':'');
+    c.innerHTML=`${t}<span class="chip-count">${n}</span>`;
+    c.onclick=()=>{ currentTag=t; renderTags(); };
+    chipsBox.appendChild(c);
+  });
+  const list=document.getElementById('tag-list');
+  const filtered = currentTag==='全部'
+    ? rs.slice().sort((a,b)=>new Date(b.time)-new Date(a.time))
+    : rs.filter(r=>r.tags.includes(currentTag)).sort((a,b)=>new Date(b.time)-new Date(a.time));
+  list.innerHTML = filtered.length ? filtered.map(cardHTML).join('') : `<div class="empty"><p>“${esc(currentTag)}”标签下还没有记录</p></div>`;
+}
+
+/* ================= 时光轴 ================= */
+function renderTimeline(){
+  const box=document.getElementById('timeline-body');
+  const sorted=records.filter(r=>!isSecret(r)).slice().sort((a,b)=>new Date(a.time)-new Date(b.time)); // 正序：最早→最新（秘密消息不展示）
+  if(!sorted.length){ box.innerHTML=`<div class="empty"><div class="heart"><svg style="width:40px;height:40px" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.4-9.3-8.6C1.2 9.9 2.6 6.4 5.6 5.6c1.8-.5 3.7.1 4.9 1.6l1.5 1.8 1.5-1.8c1.2-1.5 3.1-2.1 4.9-1.6 3 .8 4.4 4.3 2.9 6.8C18.7 16.6 12 21 12 21z"/></svg></div><p>时光轴还是空的<br>从记录第一个心动瞬间开始吧</p></div>`; return; }
+  let html=''; let lastYear='';
+  sorted.forEach(r=>{
+    const d=new Date(r.time); const y=d.getFullYear(); const p=x=>String(x).padStart(2,'0');
+    if(y!==lastYear){ html+=`<div class="tl-year">${y}</div>`; lastYear=y; }
+    html+=`<div class="tl-item">
+      <div class="tl-dot"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.4-9.3-8.6C1.2 9.9 2.6 6.4 5.6 5.6c1.8-.5 3.7.1 4.9 1.6l1.5 1.8 1.5-1.8c1.2-1.5 3.1-2.1 4.9-1.6 3 .8 4.4 4.3 2.9 6.8C18.7 16.6 12 21 12 21z"/></svg></div>
+      <div class="tl-date">${p(d.getMonth()+1)}月${p(d.getDate())}日 ${p(d.getHours())}:${p(d.getMinutes())} · ${authorBadge(r.author)}${r.draft?' · 草稿':''}</div>
+      <div class="tl-card" onclick="openDetail('${r.id}')">
+        <div class="tl-title"><span class="emoji">${r.mood||''}</span>${esc(r.title)}</div>
+        ${r.body?`<div class="tl-snip">${esc(r.body)}</div>`:''}
+        ${starsHTML(r.level)}
+      </div>
+    </div>`;
+  });
+  box.innerHTML=html;
+}
+
+/* ================= 设置页 ================= */
+function renderSettings(){
+  document.getElementById('set-slogan').value=settings.slogan;
+  document.querySelectorAll('.theme-opt').forEach(o=>o.classList.toggle('on',o.dataset.themeVal===settings.theme));
+  const A = currentUser ? AUTHORS[currentUser] : null;
+  if(isAdmin()){
+    document.getElementById('set-current-user').textContent = '当前登录：管理员';
+    document.getElementById('set-current-code').textContent = '账号：ROOT（隐藏超管 · 只读查看全部）' + (CLOUD_ON ? ' · 云端已连接' : ' · 本地模式');
+  } else {
+    document.getElementById('set-current-user').textContent = A ? '当前登录：' + A.name : '未登录';
+    document.getElementById('set-current-code').textContent = A ? '账号：' + (currentUser==='chen'?'CL':'LS') + (CLOUD_ON ? ' · 云端已连接' : ' · 本地模式') : '账号：—';
+  }
+  document.getElementById('set-anniversary').value = settings.anniversary;
+  document.getElementById('set-anniversary-info').textContent = '已在一起 ' + loveDays() + ' 天（含今天）';
+  document.getElementById('set-export-sub').textContent = isAdmin()
+    ? '导出全部账号的心动记录为 JSON 文件（管理员视角）'
+    : (CLOUD_ON ? '导出本账号全部心动记录为 JSON 文件（云端数据）' : '导出本账号全部心动记录为 JSON 文件');
+}
+
+/* ================= 保存 / 删除 / 导出 ================= */
+async function saveRecord(draft){
+  if(isAdmin()){ toast('管理员为只读视角，不能新建记录'); return; }
+  const title=document.getElementById('f-title').value.trim();
+  if(!title){ toast('请先填写心动场景标题'); return; }
+  const old = records.find(r=>r.id===editingId) || null;
+  const rec={
+    id: editingId||uid(),
+    time: document.getElementById('f-time').value || iso(new Date()),
+    title,
+    body: document.getElementById('f-body').value.trim(),
+    level: editorState.level,
+    mood: editorState.mood,
+    tags: editorState.tags,
+    loc: document.getElementById('f-loc').value.trim(),
+    img: imgPreviews.slice(),
+    draft: !!draft,
+    author: editorState.author,
+    owner: currentUser,
+    replies: old ? old.replies : [],
+  };
+  if(old && old.cloudId) rec.cloudId = old.cloudId;
+  const idx=records.findIndex(r=>r.id===rec.id);
+  if(idx>=0) records[idx]=rec; else records.unshift(rec);
+  // 云端模式：直接保存记录到飞书多维表格（图片已压缩为小 base64 存进 img 字段）
+  if(CLOUD_ON && currentUser){
+    try{
+      await bitableSaveRecord(rec);
+    }catch(e){
+      toast('云端保存失败：' + bitableError(e));
+      return;   // 云端失败则不写入本地，保证一致
+    }
+  }
+  persist();
+  toast(draft?'已保存草稿':'已发布');
+  currentTag='全部';
+  go('home');
+}
+async function deleteRecord(id){
+  if(isAdmin()){ toast('管理员为只读视角，不能删除记录'); return; }
+  const rec = records.find(r=>r.id===id);
+  if(rec && rec.author !== currentUser){ toast('只能删除自己发布的心动记录'); return; }
+  if(!confirm('确定删除这条心动记录吗？删除后不可恢复。')) return;
+  if(CLOUD_ON && currentUser && rec){
+    try{ await bitableDeleteRecord(rec); }
+    catch(e){ toast('云端删除失败：' + bitableError(e)); return; }
+  }
+  records=records.filter(r=>r.id!==id);
+  persist(); toast('已删除');
+  if(editingId===id) editingId=null;
+  go('home');
+}
+function exportBackup(){
+  if(!records.length){ toast('暂无可导出的记录'); return; }
+  const mine = records.slice().sort((a,b)=>new Date(a.time)-new Date(b.time));
+  const data = {
+    app: '李烁恋爱心动日常记录系统',
+    exportedBy: isAdmin() ? '管理员' : (currentUser ? AUTHORS[currentUser].name : '未知'),
+    account: isAdmin() ? 'ALL' : (currentUser ? (currentUser==='chen'?'CL':'LS') : ''),
+    exportedAt: fmtTime(iso(new Date())),
+    count: mine.length,
+    records: mine.map(r=>({
+      id: r.id,
+      title: r.title,
+      time: r.time,
+      author: r.author ? (AUTHORS[r.author]?AUTHORS[r.author].name:r.author) : '',
+      level: r.level,
+      mood: r.mood,
+      tags: r.tags||[],
+      loc: r.loc||'',
+      draft: !!r.draft,
+      body: r.body||'',
+      img: (r.img||[]).map(x=>x),
+      replies: (r.replies||[]).map(x=>({ author: x.author? (AUTHORS[x.author]?AUTHORS[x.author].name:x.author) : '', time: x.time, text: x.text }))
+    }))
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='李烁心动记录_'+(isAdmin()?'全部':(currentUser==='chen'?'陈立':'李烁'))+'_备份_'+fmtTime(iso(new Date())).slice(0,10).replace(/-/g,'')+'.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  toast('已导出JSON备份');
+}
+
+/* ================= 转义 ================= */
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function emptyHTML(){ return '<div class="empty"><div class="heart"><svg style="width:40px;height:40px" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.4-9.3-8.6C1.2 9.9 2.6 6.4 5.6 5.6c1.8-.5 3.7.1 4.9 1.6l1.5 1.8 1.5-1.8c1.2-1.5 3.1-2.1 4.9-1.6 3 .8 4.4 4.3 2.9 6.8C18.7 16.6 12 21 12 21z"/></svg></div><p>还没有心动记录<br>点击右下角，记录第一个瞬间</p></div>'; }
+
+/* ================= 事件绑定 ================= */
+document.getElementById('fab').onclick=()=>openEditor(null);
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>go(t.dataset.tab));
+document.getElementById('editor-back').onclick=()=>go('home');
+document.getElementById('detail-back').onclick=()=>go('home');
+document.getElementById('tags-back').onclick=()=>go('home');
+document.getElementById('timeline-back').onclick=()=>go('home');
+document.getElementById('settings-back').onclick=()=>go('home');
+document.getElementById('cal-back').onclick=()=>go('home');
+document.getElementById('secret-back').onclick=()=>{ if(secretCurrent){ secretCurrent=null; renderSecret(); } else go('home'); };
+
+document.getElementById('cal-prev').onclick=()=>{ hideCalPicker(); calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCalendar(); };
+document.getElementById('cal-next').onclick=()=>{ hideCalPicker(); calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCalendar(); };
+document.getElementById('cal-today').onclick=()=>{ const n=new Date(); calYear=n.getFullYear(); calMonth=n.getMonth(); renderCalendar(); };
+document.getElementById('cp-heart').onclick=()=>setCalMark('heart');
+document.getElementById('cp-star').onclick=()=>setCalMark('star');
+document.getElementById('cp-cancel').onclick=()=>setCalMark('none');
+document.addEventListener('click', function(e){
+  const picker=document.getElementById('cal-picker');
+  if(!picker.classList.contains('show')) return;
+  if(e.target.closest('#cal-picker') || e.target.closest('.cal-day')) return;
+  hideCalPicker();
+});
+document.getElementById('btn-anniversary-save').onclick=()=>{
+  const v=document.getElementById('set-anniversary').value;
+  if(!v){ toast('请选择在一起的日期'); return; }
+  settings.anniversary=v; persist();
+  document.getElementById('set-anniversary-info').textContent='已在一起 '+loveDays()+' 天（含今天）';
+  toast('纪念日已更新');
+  pushSettingsToCloud();
+};
+document.getElementById('btn-publish').onclick=()=>saveRecord(false);
+document.getElementById('btn-draft').onclick=()=>saveRecord(true);
+document.getElementById('btn-del').onclick=()=>{ if(editingId) deleteRecord(editingId); };
+document.getElementById('btn-export').onclick=exportBackup;
+document.getElementById('btn-slogan-save').onclick=()=>{
+  const v=document.getElementById('set-slogan').value.trim();
+  if(!v){ toast('标语不能为空'); return; }
+  settings.slogan=v; persist(); toast('标语已更新');
+  pushSettingsToCloud();
+};
+document.querySelectorAll('.theme-opt').forEach(o=>o.onclick=()=>{
+  settings.theme=o.dataset.themeVal;
+  document.documentElement.setAttribute('data-theme',settings.theme);
+  document.querySelectorAll('.theme-opt').forEach(x=>x.classList.toggle('on',x===o));
+  persist(); toast(settings.theme==='dark'?'已切换到暗系':'已切换到温柔浅色');
+  pushSettingsToCloud();
+});
+document.getElementById('f-tag-add').onclick=()=>{
+  const v=document.getElementById('f-tag-new').value.trim();
+  if(!v){ toast('请输入标签内容'); return; }
+  if(editorState.tags.includes(v)){ toast('该标签已添加'); return; }
+  editorState.tags.push(v);
+  document.getElementById('f-tag-new').value='';
+  renderTagChips();
+};
+document.getElementById('f-tag-new').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('f-tag-add').click(); } });
+document.getElementById('f-img').addEventListener('change',async e=>{
+  const remain=3-imgPreviews.length;
+  const files=[...e.target.files].filter(f=>f.type.startsWith('image/')).slice(0,remain);
+  if(files.length<[...e.target.files].length){ toast('最多上传3张相片，超出的未加入'); }
+  if(!files.length){ e.target.value=''; return; }
+  for(const f of files){
+    try{ const dataUrl=await fileToDataUrl(f); imgPreviews.push(await compressImage(dataUrl)); }
+    catch(err){ toast('读取相片失败'); }
+  }
+  renderImgPreview();
+  e.target.value='';
+});
+document.getElementById('f-title').addEventListener('input',e=>editorState.title=e.target.value);
+document.getElementById('f-body').addEventListener('input',e=>editorState.body=e.target.value);
+document.getElementById('f-loc').addEventListener('input',e=>editorState.loc=e.target.value);
+document.getElementById('f-time').addEventListener('change',e=>editorState.time=e.target.value);
+
+/* ================= 登录事件 ================= */
+document.querySelectorAll('.account-card').forEach(c=>c.onclick=()=>doLogin(c.dataset.login));
+document.getElementById('login-btn').onclick=()=>{
+  const v=document.getElementById('login-input').value.trim().toUpperCase();
+  const map={CL:'chen',LS:'shuo'};
+  if(!map[v]){
+    // 隐藏超管入口：登录页不展示，输入管理员码进入（无感）
+    if(ADMIN_CODE.includes(v)){ doLogin('admin'); return; }
+    toast('请输入正确账号：CL 或 LS'); return;
+  }
+  doLogin(map[v]);
+};
+document.getElementById('login-input').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('login-btn').click(); });
+document.getElementById('btn-logout').onclick=()=>{ if(confirm('确定退出登录吗？')) doLogout(); };
+
+/* ================= 启动 ================= */
+load();
+// 云端模式：业务账号会话存本地，恢复后获取飞书凭证并拉数据
+async function boot(){
+  if(CLOUD_ON){
+    document.getElementById('login-hint').textContent = '账号 CL / LS · 登录需输入各自密码 · 两人记录互相可见，数据保存在云端';
+    if(currentUser){
+      try{
+        await bitableAuth();                    // 确保飞书凭证就绪
+        await pullFromCloud(currentUser);       // 拉取该账号云端数据（超管自动拉全部）
+        renderHome(); renderSettings();
+        show('home');
+        return;
+      }catch(e){
+        // 连接异常：退出到登录页，不阻塞本地展示
+        currentUser = null;
+        records = [];
+        persist();
+      }
+    }
+    show('login');
+  } else {
+    document.getElementById('login-hint').textContent = '账号 CL / LS · 登录需输入各自密码 · 两人记录互相可见';
+    if(isLoggedIn()){
+      if(isAdmin()) records = [...(usersStore.chen||[]), ...(usersStore.shuo||[])].slice();
+      else records = [...(usersStore.chen||[]), ...(usersStore.shuo||[])].slice();   // 共享可见
+      renderHome(); renderSettings();
+      show('home');
+    } else {
+      show('login');
+    }
+  }
+}
+boot();
+</script>
+</body>
+</html>
