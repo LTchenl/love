@@ -101,7 +101,7 @@ body{
 .cal-switch:active{transform:scale(.96)}
 .vr-toggle{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);display:flex;align-items:center;justify-content:center;cursor:pointer}
 .vr-toggle.on{background:var(--rose-soft);border-color:var(--rose);color:var(--rose-deep)}
-.vr-stage{position:relative;height:calc(100vh - 150px);min-height:430px;perspective:2200px;overflow:hidden;background:radial-gradient(ellipse 62% 48% at 50% 0%, rgba(255,226,195,.5), rgba(255,226,195,0) 78%),linear-gradient(180deg,#4a3d31 0%,#42362a 52%,#251c14 52%,#1d150e 100%)}
+.vr-stage{position:relative;height:calc(100vh - 150px);min-height:430px;perspective:2200px;overflow:hidden;touch-action:none;background:radial-gradient(ellipse 62% 48% at 50% 0%, rgba(255,226,195,.5), rgba(255,226,195,0) 78%),linear-gradient(180deg,#4a3d31 0%,#42362a 52%,#251c14 52%,#1d150e 100%)}
 .vr-stage::after{content:'';position:absolute;inset:0;box-shadow:inset 0 0 190px rgba(8,5,3,.55);pointer-events:none;z-index:6}
 .vr-title{position:absolute;top:34px;left:0;right:0;text-align:center;z-index:60;pointer-events:none}
 .vt-main{font-family:'Noto Serif SC','Songti SC',serif;font-size:25px;font-weight:700;color:#f0dcc0;letter-spacing:.3em;text-shadow:0 1px 10px rgba(0,0,0,.7);text-shadow:0 2px 22px rgba(0,0,0,.55), 0 0 30px rgba(255,225,190,.28)}
@@ -123,7 +123,7 @@ body{
 .va-tag{position:absolute;left:50%;transform:translateX(-50%);bottom:-22px;font-family:'Noto Serif SC','Songti SC',serif;font-size:10px;color:#eadbc4;letter-spacing:.1em;white-space:nowrap;text-shadow:0 1px 6px rgba(0,0,0,.6)}
 .vr-art:hover .va-frame{transform:scale(1.05)}
 .vr-art:hover .va-tag{color:#f6ead9}
-#view-art{position:relative;min-height:100vh;background:radial-gradient(ellipse 300px 210px at 24% 9%, rgba(255,236,216,.85), rgba(255,236,216,0) 72%),radial-gradient(ellipse 300px 210px at 76% 11%, rgba(255,236,216,.8), rgba(255,236,216,0) 72%),linear-gradient(180deg,#f8f1ea 0%,#f0e7de 72%,#e5d7c9 72%,#e5d7c9 100%)}
+#view-art{position:relative;min-height:100vh;overflow:hidden;touch-action:none;background:radial-gradient(ellipse 300px 210px at 24% 9%, rgba(255,236,216,.85), rgba(255,236,216,0) 72%),radial-gradient(ellipse 300px 210px at 76% 11%, rgba(255,236,216,.8), rgba(255,236,216,0) 72%),linear-gradient(180deg,#f8f1ea 0%,#f0e7de 72%,#e5d7c9 72%,#e5d7c9 100%)}
 #view-art::after{content:'';position:absolute;left:0;right:0;bottom:0;height:150px;background:repeating-linear-gradient(90deg, rgba(130,95,70,.09) 0 2px, rgba(130,95,70,0) 2px 40px),linear-gradient(180deg,#dccdbb,#c7b29e);pointer-events:none}
 #view-art::before{content:'';position:absolute;left:0;right:0;bottom:146px;height:6px;background:linear-gradient(180deg,#bfa98f,#a88f74);pointer-events:none}
 #view-art .art-grid{padding:20px 16px 158px}
@@ -2054,27 +2054,18 @@ function initVrInteractions(){
   });
   stage.addEventListener('pointermove', e=>{
     if(!dragging || touching) return;
+    e.preventDefault();
     const now=Date.now();
     const dx=e.clientX-sx, dy=e.clientY-sy;
     moved=Math.max(moved, Math.abs(dx), Math.abs(dy));
     vrRotY=srY+dx*0.25;
-    vrRotX=Math.max(-14, Math.min(10, srX+dy*0.12));
+    vrRotX=Math.max(-14, Math.min(10, srX-dy*0.12));
     if(lastT && now>lastT) velX=(e.clientX-lastX)/(now-lastT)*1000*0.25;
     lastX=e.clientX; lastT=now;
     applyVr();
   });
   stage.addEventListener('pointerup', ()=>{
     dragging=false;
-    if(moved>=6 && Math.abs(velX)>3){
-      const spin=()=>{
-        velX*=0.94;
-        if(Math.abs(velX)<0.35){ velX=0; return; }
-        vrRotY+=velX*0.016;
-        applyVr();
-        requestAnimationFrame(spin);
-      };
-      requestAnimationFrame(spin);
-    }
   });
   stage.addEventListener('touchstart', e=>{
     if(e.touches.length===2){
