@@ -2023,16 +2023,16 @@ function renderVr(){
   document.getElementById('vr-empty').style.display = arts.length ? 'none' : '';
   if(!arts.length) return;
   const N=arts.length;
-  const rows = N>24 ? 3 : (N>10 ? 2 : 1);
+  const rows = N>=3 ? 2 : 1;
   const perRow = rows>1 ? Math.ceil(N/rows) : N;
-  const span = N<=1 ? 0 : Math.min(130, 680/(perRow-1));
-  const artW = N>10 ? 30 : 36;
-  const rowH = rows===3 ? 110 : 140;
+  const span = N<=1 ? 0 : Math.min(150, 720/(perRow-1));
+  const artW = 36;
+  const rowH = 140;
   arts.forEach((r,i)=>{
     const row = rows>1 ? (i%rows) : 0;
     const idx = rows>1 ? Math.floor(i/rows) : i;
     const px = perRow<=1 ? 0 : span*(idx-(perRow-1)/2);
-    const py = 156 + row*rowH;
+    const py = rows>1 ? 105 + row*rowH : 197;
     const a=document.createElement('div');
     a.className='vr-art';
     a.style.left = (500+px-artW/2)+'px';
@@ -2046,11 +2046,11 @@ function renderVr(){
 }
 function initVrInteractions(){
   const stage=document.getElementById('vr-stage');
-  let dragging=false, sx=0, sy=0, srY=0, srX=0, moved=0, touching=false, lastX=0, lastT=0, velX=0;
+  let dragging=false, sx=0, sy=0, srY=0, moved=0, touching=false, lastX=0, lastT=0, velX=0;
   let pinchD=0, pinchZ0=1;
   stage.addEventListener('pointerdown', e=>{
     if(e.target.closest('.vr-art')) return;
-    dragging=true; sx=e.clientX; sy=e.clientY; srY=vrRotY; srX=vrRotX; moved=0;
+    dragging=true; sx=e.clientX; sy=e.clientY; srY=vrRotY; moved=0;
   });
   stage.addEventListener('pointermove', e=>{
     if(!dragging || touching) return;
@@ -2059,7 +2059,7 @@ function initVrInteractions(){
     const dx=e.clientX-sx, dy=e.clientY-sy;
     moved=Math.max(moved, Math.abs(dx), Math.abs(dy));
     vrRotY=srY+dx*0.25;
-    vrRotX=Math.max(-14, Math.min(10, srX-dy*0.12));
+    // 纵向俯仰固定，不支持上下拖拽（仅横向平移 + 缩放）
     if(lastT && now>lastT) velX=(e.clientX-lastX)/(now-lastT)*1000*0.25;
     lastX=e.clientX; lastT=now;
     applyVr();
