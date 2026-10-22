@@ -887,6 +887,7 @@ async function bitableFetchRecords(){
       tags: bj(f.tags, []),
       loc: bs(f.loc),
       img: bj(f.img, []),
+      media: Array.isArray(f.media) ? f.media : [],
       draft: bs(f.draft) === '1',
       author: bs(f.author) || 'shuo',
       owner: bs(f.owner) || 'chen',
@@ -906,6 +907,7 @@ async function bitableSaveRecord(rec){
     tags: JSON.stringify(rec.tags||[]),
     loc: bs(rec.loc),
     img: JSON.stringify(rec.img||[]),
+    media: rec.media || [],
     draft: rec.draft ? '1' : '0',
     author: bs(rec.author),
     owner: bs(rec.owner),
@@ -920,6 +922,21 @@ async function bitableSaveRecord(rec){
 }
 async function bitableDeleteRecord(rec){
   if(rec.cloudId) await bitableApi('DELETE', '/records/' + rec.cloudId);
+}
+/* 上传 base64 媒体到飞书附件（供表格直接预览），返回附件对象 {file_token,name,type} */
+async function cloudUploadMedia(dataUrl, fileName){
+  const mime = (String(dataUrl).match(/^data:([^;]+)/) || [])[1] || 'image/jpeg';
+  const res = await fetch(CLOUDBASE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    body: JSON.stringify({ method:'UPLOAD', path:'', body:{ name: fileName, mime, base64: String(dataUrl).split(',')[1] || '' } })
+  });
+  const json = await res.json();
+  if(json.code !== 0) throw new Error(json.msg || ('上传失败 code ' + json.code));
+  const d = json.data || {};
+  if(!d.file_token) throw new Error('上传失败：未返回文件');
+  const ext = (fileName.split('.').pop() || (mime.indexOf('video')===0 ? 'mp4' : 'jpg'));
+  return { file_token: d.file_token, name: fileName, type: d.type || ext };
 }
 
 /* ================= 数据层 ================= *//* ================= 数据层 ================= *//* ================= 数据层 ================= */
@@ -1112,7 +1129,17 @@ function allTags(){ const map={}; published().forEach(r=>r.tags.forEach(t=>{map[
 function isSecret(r){ return r && Array.isArray(r.tags) && r.tags.includes('secret'); }
 function isArt(r){ return r && Array.isArray(r.tags) && r.tags.includes('art'); }
 function isCfg(r){ return r && (r.title||'').indexOf('__cfg:')===0; }
-function isMediaVideo(u){ return typeof u==='string' && u.indexOf('data:video')===0; }
+function isMediaVideo(u){
+  if(typeof u==='string') return u.indexOf('data:video')===0 || /\\.(mp4|mov|webm|avi)(\?|$)/i.test(u);
+  return !!(u && /\\.(mp4|mov|webm|avi)$/i.test(u.name||''));
+}
+function mediaUrl(it){
+  if(!it) return '';
+  if(typeof it==='string') return it;
+  if(it && it.file_token) return CLOUDBASE_URL + '/media?token=' + encodeURIComponent(it.file_token);
+  return '';
+}
+function recImgs(r){ return (r && r.media && r.media.length) ? r.media : ((r && r.img) || []); }
 function published(){ return records.filter(r=>!r.draft && !isSecret(r) && !isCfg(r) && !isArt(r)); }
 function monthCount(){ const now=new Date(); return published().filter(r=>{const d=new Date(r.time);return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();}).length; }
 function replyCount(){ return records.reduce((s,r)=>s+(r.replies?r.replies.length:0),0); }
@@ -1303,7 +1330,7 @@ function renderImgPreview(){
   const box=document.getElementById('f-img-preview');
   box.innerHTML = imgPreviews.map((u,i)=>`
     <div class="preview-item">
-      <img src="${u}" alt="相片${i+1}">
+      <img src="${mediaUrl(u)}" alt="相片${i+1}">
       <button class="p-del" onclick="removeImg(${i})" aria-label="删除相片${i+1}">✕</button>
     </div>`).join('');
 }
@@ -1468,11 +1495,13 @@ function renderSecret(){
   document.getElementById('secret-send-btn').style.display='';
   const list=document.getElementById('secret-list');
   list.style.display='';
-  const secs = records.filter(r=>isSecret(r) && !(r.tags||[]).includes('burned')).sort((a,b)=>new Date(b.time)-new Date(a.time));
+  let sentBurned = [];
+  try{ sentBurned = JSON.parse(localStorage.getItem('secretSentBurned')||'[]'); }catch(e){}
+  const secs = records.filter(r=>isSecret(r) && !(r.tags||[]).includes('burned') && !sentBurned.includes(r.id)).sort((a,b)=>new Date(b.time)-new Date(a.time));
   if(!secs.length){ list.innerHTML=`<div class="empty"><p>还没有秘密消息<br>发送一条只属于你们俩的吧</p></div>`; return; }
   list.innerHTML = secs.map(r=>{
     const A=AUTHORS[r.author]||AUTHORS.chen;
-    const isVid = (r.img||[]).some(u=>isMediaVideo(u));
+    const isVid = recImgs(r).some(u=>isMediaVideo(u));
     return `<div class="secret-item" onclick="openSecretView('${r.id}')">
       <span class="ra ${A.cls}">${A.initial}</span>
       <div class="secret-item-main">
@@ -1524,11 +1553,15 @@ async function sendSecret(){
     }
   }catch(e){ toast('读取文件失败'); return; }
   const note=document.getElementById('secret-note').value.trim();
-  const rec = { id: uid(), time: iso(new Date()), title:'秘密消息', body:note||'', level:0, mood:'', tags:['secret'], loc:'', img:[dataUrl], draft:false, author:currentUser, owner:currentUser, replies:[] };
+  const rec = { id: uid(), time: iso(new Date()), title:'秘密消息', body:note||'', level:0, mood:'', tags:['secret'], loc:'', img:[], media:[], draft:false, author:currentUser, owner:currentUser, replies:[] };
   if(CLOUD_ON && currentUser){
-    try{ await bitableSaveRecord(rec); }
+    try{
+      const fname = file.name || (file.type.indexOf('video')===0 ? 'secret-clip.mp4' : 'secret-photo.jpg');
+      rec.media = [ await cloudUploadMedia(dataUrl, fname) ];
+      await bitableSaveRecord(rec);
+    }
     catch(e){ toast('云端保存失败：'+bitableError(e)); return; }
-  }
+  } else { rec.img = [dataUrl]; }
   records.unshift(rec);
   persist(); toast('秘密已送达，TA打开后才能看到');
   renderSecret();
@@ -1568,10 +1601,10 @@ function openSecretView(id){
   const r=records.find(x=>x.id===id); if(!r || !isSecret(r)) return;
   secretCurrent = id;
   const box=document.getElementById('secret-media');
-  const u=(r.img||[])[0];
+  const u=recImgs(r)[0];
   const isVid = isMediaVideo(u);
   box.innerHTML = u
-    ? (isVid ? `<video src="${u}" controls playsinline></video>` : `<img src="${u}" alt="秘密">`)
+    ? (isVid ? `<video src="${mediaUrl(u)}" controls playsinline></video>` : `<img src="${mediaUrl(u)}" alt="秘密">`)
     : '<div class="secret-none">（无媒体内容）</div>';
   document.getElementById('secret-note-view').textContent = r.body || '';
   document.getElementById('secret-note-view').style.display = r.body ? '' : 'none';
@@ -1595,8 +1628,20 @@ function autoBurn(){
   if(!secretCurrent) return;
   const r=records.find(x=>x.id===secretCurrent); if(!r) return;
   secretCurrent = null;
+  const isSender = !!(r.author && currentUser && r.author === currentUser);
+  if(isSender){
+    // 发送方自己查看后销毁：只隐藏自己的视图，云端保留（接收方不受影响，后台可查）
+    try{
+      const arr = JSON.parse(localStorage.getItem('secretSentBurned')||'[]');
+      if(!arr.includes(r.id)){ arr.push(r.id); localStorage.setItem('secretSentBurned', JSON.stringify(arr)); }
+    }catch(e){}
+    records = records.filter(x=>x.id!==r.id);
+    persist(); toast('你已销毁（对方仍可查看）');
+    renderSecret();
+    return;
+  }
   (async()=>{
-    // 阅后即焚：前端销毁，但云端保留记录（仅打 burned 标记，数据不丢）
+    // 接收方查收销毁：云端打 burned 标记（双方前端都不可见，云端后台数据保留可查）
     if(CLOUD_ON && currentUser){
       try{
         r.tags = (r.tags||[]).concat('burned');
@@ -1688,7 +1733,8 @@ async function saveRecord(draft){
     mood: editorState.mood,
     tags: editorState.tags,
     loc: document.getElementById('f-loc').value.trim(),
-    img: imgPreviews.slice(),
+    img: (imgPreviews.length && imgPreviews[0] && typeof imgPreviews[0]==='object') ? [] : imgPreviews.slice(),
+    media: (imgPreviews.length && imgPreviews[0] && typeof imgPreviews[0]==='object') ? imgPreviews.slice() : (old && old.media ? old.media.slice() : []),
     draft: !!draft,
     author: editorState.author,
     owner: currentUser,
@@ -1927,11 +1973,14 @@ async function saveArt(){
   let img;
   try{ img = await compressImage(artPreviewDataUrl); }catch(e){ img = artPreviewDataUrl; }
   const note=document.getElementById('art-note').value.trim();
-  const rec={ id: uid(), time: iso(new Date()), title, body:note||'', level:0, mood:'', tags:['art'], loc:'', img:[img], draft:false, author:currentUser, owner:currentUser, replies:[] };
+  const rec={ id: uid(), time: iso(new Date()), title, body:note||'', level:0, mood:'', tags:['art'], loc:'', img:[], media:[], draft:false, author:currentUser, owner:currentUser, replies:[] };
   if(CLOUD_ON && currentUser){
-    try{ await bitableSaveRecord(rec); }
+    try{
+      rec.media = [ await cloudUploadMedia(img, (title.slice(0,20)||'art') + '.jpg') ];
+      await bitableSaveRecord(rec);
+    }
     catch(e){ toast('云端保存失败：'+bitableError(e)); return; }
-  }
+  } else { rec.img = [img]; }
   records.unshift(rec); persist();
   toast('画作已上传到展厅');
   document.getElementById('art-title').value='';
@@ -1943,8 +1992,9 @@ function openArtDetail(id){
   const r=records.find(x=>x.id===id); if(!r) return;
   artCurrentId=id;
   const imgEl=document.getElementById('am-img');
-  imgEl.src=(r.img&&r.img[0])?r.img[0]:'';
-  imgEl.style.display=(r.img&&r.img[0])?'':'none';
+  const amu=recImgs(r)[0];
+  imgEl.src=amu?mediaUrl(amu):'';
+  imgEl.style.display=amu?'':'none';
   document.getElementById('am-name').textContent=r.title;
   document.getElementById('am-note').textContent=r.body||'（未写灵感故事）';
   document.getElementById('am-meta').innerHTML=authorBadge(r.author)+' · '+fmtTime(r.time);
@@ -2047,7 +2097,7 @@ function renderVr(){
     a.style.top = py+'px';
     a.style.width = artW+'px';
     a.setAttribute('data-id', r.id);
-    a.innerHTML = '<div class="va-glow"></div><div class="va-spot"></div><div class="va-light"></div><div class="va-frame">'+(r.img&&r.img[0]?'<img class="va-img" src="'+r.img[0]+'" alt="">':'<div class="va-none">无图</div>')+'</div><div class="va-tag">'+esc(r.title)+'</div>';
+    a.innerHTML = '<div class="va-glow"></div><div class="va-spot"></div><div class="va-light"></div><div class="va-frame">'+(recImgs(r)[0]?'<img class="va-img" src="'+mediaUrl(recImgs(r)[0])+'" alt="">':'<div class="va-none">无图</div>')+'</div><div class="va-tag">'+esc(r.title)+'</div>';
     a.onclick = ()=>{ openArtDetail(r.id); };
     wall.appendChild(a);
   });
