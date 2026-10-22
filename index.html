@@ -2025,13 +2025,21 @@ function renderVr(){
   const N=arts.length;
   const rows = N>=3 ? 2 : 1;
   const perRow = rows>1 ? Math.ceil(N/rows) : N;
-  const span = N<=1 ? 0 : Math.min(150, 720/(perRow-1));
   const artW = 36;
   const rowH = 140;
+  const stgW = document.getElementById('vr-stage').clientWidth || 430;
+  const visW = stgW/(2200/(2200-420));
+  const visL = 500-visW/2, visR = 500+visW/2;
+  const tileC=[];
+  for(let k=0; k*125+62.5<=1000; k++){
+    const c=k*125+62.5;
+    if(c>=visL-50 && c<=visR+50) tileC.push(c);
+  }
+  const slot = tileC.length>=perRow ? tileC.slice(Math.max(0,Math.floor((tileC.length-perRow)/2)), Math.max(0,Math.floor((tileC.length-perRow)/2))+perRow) : null;
   arts.forEach((r,i)=>{
     const row = rows>1 ? (i%rows) : 0;
     const idx = rows>1 ? Math.floor(i/rows) : i;
-    const px = perRow<=1 ? 0 : span*(idx-(perRow-1)/2);
+    const px = slot ? (slot[idx]-500) : (perRow<=1 ? 0 : ((idx+0.5)*(visW/perRow)-visW/2));
     const py = rows>1 ? 105 + row*rowH : 197;
     const a=document.createElement('div');
     a.className='vr-art';
