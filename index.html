@@ -1993,6 +1993,7 @@ document.getElementById('set-slogan').addEventListener('blur',()=>{ const v=docu
 document.querySelectorAll('.theme-opt').forEach(o=>o.onclick=()=>{
   settings.theme=o.dataset.themeVal;
   document.documentElement.setAttribute('data-theme',settings.theme);
+  if(typeof fixSvgStroke==='function') fixSvgStroke(document);
   document.querySelectorAll('.theme-opt').forEach(x=>x.classList.toggle('on',x===o));
   persist(); toast(settings.theme==='dark'?'已切换到暗系':'已切换到温柔浅色');
   pushSettingsToCloud();
@@ -2317,6 +2318,35 @@ async function boot(){
   }
 }
 setInterval(renderBirthdays,1000);
+/* 兼容旧 WebView/部分手机浏览器：SVG stroke="currentColor" 不渲染时图标整片空白，
+   这里把颜色用计算值写死到属性，并监听动态插入的 SVG 自动修复 */
+function fixSvgStroke(root){
+  var list=(root||document).querySelectorAll('svg');
+  for(var i=0;i<list.length;i++){
+    var svg=list[i];
+    var nodes=[svg];
+    var subs=svg.querySelectorAll('*');
+    for(var k=0;k<subs.length;k++) nodes.push(subs[k]);
+    for(var j=0;j<nodes.length;j++){
+      var n=nodes[j];
+      if(n.getAttribute && n.getAttribute('stroke')==='currentColor'){
+        try{ n.setAttribute('stroke', getComputedStyle(n).color); }catch(e){}
+      }
+    }
+  }
+}
+fixSvgStroke(document);
+if(window.MutationObserver){
+  new MutationObserver(function(muts){
+    for(var i=0;i<muts.length;i++){
+      var adds=muts[i].addedNodes;
+      for(var j=0;j<adds.length;j++){
+        var nd=adds[j];
+        if(nd.nodeType===1 && (nd.tagName==='SVG' || nd.querySelector('svg'))) fixSvgStroke(nd);
+      }
+    }
+  }).observe(document.body,{childList:true,subtree:true});
+}
 boot();
 </script>
 <div class="lightbox" id="lightbox" onclick="closeLightbox()"><img id="lightbox-img" alt="" src=""></div>
