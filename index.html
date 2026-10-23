@@ -164,6 +164,14 @@ body{
 .stat-card{background:var(--card);border-radius:18px;padding:16px;box-shadow:var(--shadow);border:1px solid var(--line)}
 .stat-card .num{font-size:30px;font-weight:700;color:var(--rose-deep);font-family:"Noto Serif SC",serif}
 .stat-card .lbl{font-size:12px;color:var(--ink-soft);margin-top:4px}
+.stat-card.bd-card{background:linear-gradient(150deg,var(--rose-soft),var(--card) 70%);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:5px};cursor:pointer
+.stat-card.bd-card:active{transform:scale(.98)}
+.bd-top{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--rose-deep)}
+.bd-top svg{width:14px;height:14px;color:var(--rose)}
+.bd-num{display:flex;align-items:center;gap:6px;font-size:34px;font-weight:700;color:var(--rose-deep);font-family:"Noto Serif SC",serif;line-height:1.15}
+.bd-clock{width:20px;height:20px;color:var(--rose-deep);flex:none}
+.bd-time{font-size:12px;color:var(--rose-deep);font-variant-numeric:tabular-nums;letter-spacing:1px;line-height:1.3;margin-top:1px}
+.bd-unit{font-size:15px;font-weight:400;color:var(--rose-deep);opacity:.6;margin-left:3px}
 .highlight-card{margin:12px 20px 0;background:linear-gradient(150deg,var(--rose-soft),var(--card) 65%);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
 .highlight-card .h-lbl{font-size:12px;color:var(--rose-deep);font-weight:600;display:flex;align-items:center;gap:6px}
 .highlight-card .h-lbl svg{width:14px;height:14px}
@@ -213,10 +221,12 @@ body{
 .preview-item .p-del{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;border:none;background:rgba(60,45,50,.72);color:#fff;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .preview-item .p-del:hover{background:rgba(194,91,91,.9)}
 .d-imgs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 16px}
-.d-imgs img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
+.d-imgs img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--line);cursor:zoom-in}
 .form-actions{display:flex;gap:10px;padding:6px 20px 20px}
 .form-actions .btn{flex:1}
 .form-actions .btn-danger{flex:0 0 auto;width:52px;padding:13px 0}
+.lightbox{position:fixed;inset:0;z-index:9999;background:rgba(12,8,14,.9);display:none;align-items:center;justify-content:center;cursor:zoom-out}
+.lightbox img{max-width:92vw;max-height:92vh;border-radius:10px;box-shadow:0 12px 44px rgba(0,0,0,.55)}
 /* ============ 详情页 ============ */
 .detail{padding:20px}
 .detail .d-time{font-size:12px;color:var(--ink-soft);display:flex;align-items:center;gap:6px}
@@ -399,6 +409,15 @@ body{
 .cal-day .cal-mark svg{width:13px;height:13px;display:block}
 .cal-day .cal-mark.heart{color:var(--rose-deep)}
 .cal-day .cal-mark.star{color:#E8A75C}
+.cal-day.bday{background:linear-gradient(150deg,var(--rose-soft),rgba(255,255,255,.6));border-color:var(--rose);color:var(--rose-deep);font-weight:700;box-shadow:0 2px 10px rgba(234,167,178,.25)}
+.cal-day .cal-mark.cake{color:var(--rose-deep)}
+.cal-badge{position:absolute;top:3px;right:3px;font-size:8px;font-weight:600;color:#fff;background:var(--rose);border-radius:6px;padding:1px 4px;line-height:1.4}
+.cal-bd-tip{font-size:11px;color:var(--rose-deep);background:rgba(234,167,178,.14);border:1px solid rgba(234,167,178,.3);border-radius:999px;padding:2px 10px;display:flex;align-items:center;gap:4px;margin-top:3px;white-space:nowrap;width:max-content;margin-left:auto;margin-right:auto}
+.cal-bd-tip .cake-ico{width:12px}
+.cake-ico{height:auto;border-radius:3px}
+.bd-top .cake-ico{width:14px}
+.cal-mark .cake-ico{width:14px;display:block}
+.cal-bd-tip.empty{display:none}
 .cal-head{position:relative}
 .cal-today-btn{position:absolute;left:50%;transform:translateX(-50%);bottom:-24px;font-size:10px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--rose-deep);cursor:pointer;box-shadow:var(--shadow);z-index:2}
 .cal-today-btn:active{transform:translateX(-50%) scale(.95)}
@@ -481,8 +500,16 @@ body{
       </div>
     </div>
     <div class="stat-row">
-      <div class="stat-card"><div class="num" id="stat-total">0</div><div class="lbl">心动记录总数</div></div>
-      <div class="stat-card"><div class="num" id="stat-month">0</div><div class="lbl">本月心动次数</div></div>
+      <div class="stat-card bd-card" onclick="goBirthday('chen')">
+        <div class="bd-top"><img class="cake-ico" src="images/birthday-cake.png" alt="生日"><span>陈立</span></div>
+        <div class="bd-num"><svg class="bd-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><span id="bd-num-chen">—</span></div>
+        <div class="bd-time" id="bd-time-chen"></div>
+      </div>
+      <div class="stat-card bd-card" onclick="goBirthday('shuo')">
+        <div class="bd-top"><img class="cake-ico" src="images/birthday-cake.png" alt="生日"><span>李烁</span></div>
+        <div class="bd-num"><svg class="bd-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><span id="bd-num-shuo">—</span></div>
+        <div class="bd-time" id="bd-time-shuo"></div>
+      </div>
     </div>
     <div class="highlight-card" id="highlight-card">
       <div class="h-lbl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.4-9.3-8.6C1.2 9.9 2.6 6.4 5.6 5.6c1.8-.5 3.7.1 4.9 1.6l1.5 1.8 1.5-1.8c1.2-1.5 3.1-2.1 4.9-1.6 3 .8 4.4 4.3 2.9 6.8C18.7 16.6 12 21 12 21z"/></svg>最高心动瞬间</div>
@@ -590,7 +617,10 @@ body{
     <div class="cal-wrap">
       <div class="cal-head">
         <button class="cal-nav-btn" id="cal-prev" aria-label="上个月"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-        <div class="cal-title" id="cal-title">—</div>
+        <div style="text-align:center">
+          <div class="cal-title" id="cal-title">—</div>
+          <div class="cal-bd-tip empty" id="cal-bd-tip"></div>
+        </div>
         <button class="cal-nav-btn" id="cal-next" aria-label="下个月"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
         <button class="cal-today-btn" id="cal-today">回今天</button>
       </div>
@@ -1187,7 +1217,19 @@ function renderLoveDays(){
 function renderCalendar(){
   const now=new Date();
   if(!calYear){ calYear=now.getFullYear(); calMonth=now.getMonth(); }
+  const chenBd=nextBday('chen'), shuoBd=nextBday('shuo');
+  const chenKey=dateKey(chenBd), shuoKey=dateKey(shuoBd);
   document.getElementById('cal-title').textContent = calYear+'年'+(calMonth+1)+'月';
+  const tip=document.getElementById('cal-bd-tip');
+  if(tip){
+    const names=[];
+    if(chenBd.getFullYear()===calYear && chenBd.getMonth()===calMonth) names.push('陈立');
+    if(shuoBd.getFullYear()===calYear && shuoBd.getMonth()===calMonth) names.push('李烁');
+    if(names.length){
+      tip.innerHTML='<img class="cake-ico" src="images/birthday-cake.png" alt="生日">本月有 '+names.join('、')+' 的生日';
+      tip.classList.remove('empty');
+    }else{ tip.classList.add('empty'); }
+  }
   document.getElementById('cal-today').style.display = (calYear===now.getFullYear() && calMonth===now.getMonth()) ? 'none' : 'block';
   const grid=document.getElementById('cal-grid');
   const first=new Date(calYear,calMonth,1);
@@ -1195,32 +1237,47 @@ function renderCalendar(){
   const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
   const todayKey=dateKey(now);
   let html='';
-  ['日','一','二','三','四','五','六'].forEach(w=>{ html+=`<div class="cal-week">${w}</div>`; });
+  ['日','一','二','三','四','五','六'].forEach(w=>{ html+='<div class="cal-week">'+w+'</div>'; });
   // 前月补齐
   const prevDays=new Date(calYear,calMonth,0).getDate();
   for(let i=startWeek-1;i>=0;i--){
-    const d=prevDays-i; const dt=new Date(calYear,calMonth-1,d);
-    const key=dateKey(dt);
-    html+=`<div class="cal-day other"><span>${d}</span></div>`;
+    const d=prevDays-i;
+    html+='<div class="cal-day other"><span>'+d+'</span></div>';
   }
   // 当月
   for(let d=1;d<=daysInMonth;d++){
     const dt=new Date(calYear,calMonth,d); const key=dateKey(dt);
     const isToday=key===todayKey;
+    const isBday=(key===chenKey||key===shuoKey);
     const marked=settings.marks[key];
     const future=dt>now;
-    html+=`<div class="cal-day${isToday?' today':''}${future?' future':''}${marked==='heart'?' has-heart':''}${marked==='star'?' has-star':''}" data-key="${key}" ${future?'':'onclick="openCalPicker(this)"'}>
-      <span>${d}</span>
-      ${marked==='heart'?'<span class="cal-mark heart"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.4-9.3-8.6C1.2 9.9 2.6 6.4 5.6 5.6c1.8-.5 3.7.1 4.9 1.6l1.5 1.8 1.5-1.8c1.2-1.5 3.1-2.1 4.9-1.6 3 .8 4.4 4.3 2.9 6.8C18.7 16.6 12 21 12 21z"/></svg></span>':''}
-      ${marked==='star'?'<span class="cal-mark star"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.2 6.8.8-5.1 4.6 1.4 6.7L12 17.4l-6 3.4 1.4-6.7L2.3 9.5l6.8-.8z"/></svg></span>':''}
-    </div>`;
+    let cls='cal-day';
+    if(isToday) cls+=' today';
+    if(future) cls+=' future';
+    if(isBday) cls+=' bday';
+    if(!isBday && marked==='heart') cls+=' has-heart';
+    if(!isBday && marked==='star') cls+=' has-star';
+    let mark='';
+    if(isBday){
+      mark='<span class="cal-mark cake"><img class="cake-ico" src="images/birthday-cake.png" alt="生日"></span>';
+    }else if(marked==='heart'){
+      mark='<span class="cal-mark heart"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.4-9.3-8.6C1.2 9.9 2.6 6.4 5.6 5.6c1.8-.5 3.7.1 4.9 1.6l1.5 1.8 1.5-1.8c1.2-1.5 3.1-2.1 4.9-1.6 3 .8 4.4 4.3 2.9 6.8C18.7 16.6 12 21 12 21z"/></svg></span>';
+    }else if(marked==='star'){
+      mark='<span class="cal-mark star"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.2 6.8.8-5.1 4.6 1.4 6.7L12 17.4l-6 3.4 1.4-6.7L2.3 9.5l6.8-.8z"/></svg></span>';
+    }
+    html+='<div class="'+cls+'" data-key="'+key+'" '+(future?'':'onclick="openCalPicker(this)"')+'>'+
+      '<span>'+d+'</span>'+
+      (isToday?'<span class="cal-badge">今</span>':'')+
+      mark+
+    '</div>';
   }
   // 后月补齐至完整一周
   const total=startWeek+daysInMonth;
   const remainder=total%7;
-  if(remainder!==0){ for(let i=1;i<=7-remainder;i++){ const dt=new Date(calYear,calMonth+1,i); html+=`<div class="cal-day other"><span>${i}</span></div>`; } }
+  if(remainder!==0){ for(let i=1;i<=7-remainder;i++){ html+='<div class="cal-day other"><span>'+i+'</span></div>'; } }
   grid.innerHTML=html;
 }
+
 let calPickKey = null; // 正在选择标记的日期 key
 function openCalPicker(el){
   calPickKey = el.dataset.key;
@@ -1240,14 +1297,78 @@ function setCalMark(kind){
 }
 function hideCalPicker(){ document.getElementById('cal-picker').classList.remove('show'); }
 
+const lunarInfo=[
+0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
+0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,
+0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,
+0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,
+0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,
+0x06ca0,0x0b550,0x15355,0x04da0,0x0a5b0,0x14573,0x052b0,0x0a9a8,0x0e950,0x06aa0,
+0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,
+0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b6a0,0x195a6,
+0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,
+0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x055c0,0x0ab60,0x096d5,0x092e0,
+0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5,
+0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,0x052b0,0x0a930,
+0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,0x0ea65,0x0d530,
+0x05aa0,0x076a3,0x096d0,0x04afb,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,0x0d520,0x0dd45,
+0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,0x06d20,0x0ada0,
+0x0ada2,0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,
+0x09570,0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x05ac0,0x0ab60,0x096d5,
+0x092e0,0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,
+0x0cab5,0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,0x052b0,
+0x0a930,0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,0x0ea65,
+0x0d530,0x05aa0,0x076a3,0x096d0,0x04afb,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,0x0d520,
+0x0dd45,0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,0x06d20,
+0x0ada0];
+function leapMonth(y){ return lunarInfo[y-1900] & 0xf; }
+function leapDays(y){ return leapMonth(y) ? ((lunarInfo[y-1900] & 0x10000) ? 30 : 29) : 0; }
+function monthDays(y,m){ return (lunarInfo[y-1900] & (0x10000 >> m)) ? 30 : 29; }
+function lYearDays(y){ var sum=348; for(var i=0x8000;i>0x8;i>>=1) sum += (lunarInfo[y-1900] & i) ? 1 : 0; return sum + leapDays(y); }
+function lunar2solar(y,m,d){
+  var offset=0, leap=leapMonth(y);
+  for(var i=1900;i<y;i++) offset += lYearDays(i);
+  for(var i=1;i<m;i++) offset += monthDays(y,i);
+  if(leap && m>leap) offset += leapDays(y);
+  return new Date(1900,0,31 + (offset + d - 1));
+}
+function nextBday(who){
+  var now=new Date(); now.setHours(0,0,0,0);
+  var y=now.getFullYear();
+  if(who==='chen'){ var d=lunar2solar(y,6,24); return d<now?lunar2solar(y+1,6,24):d; }
+  var d=new Date(y,8,4); return d<now?new Date(y+1,8,4):d;
+}
+function pad2(n){ return (n<10?'0':'')+n; }
+function renderBirthdays(){
+  var now=new Date();
+  var cb=nextBday('chen'), sb=nextBday('shuo');
+  var b1=new Date(cb.getFullYear(),cb.getMonth(),cb.getDate()), b2=new Date(sb.getFullYear(),sb.getMonth(),sb.getDate());
+  var r1=Math.max(0,b1-now), r2=Math.max(0,b2-now);
+  var d1=Math.floor(r1/86400000), d2=Math.floor(r2/86400000);
+  var h1=Math.floor(r1%86400000/3600000), m1=Math.floor(r1%3600000/60000), s1=Math.floor(r1%60000/1000);
+  var h2=Math.floor(r2%86400000/3600000), m2=Math.floor(r2%3600000/60000), s2=Math.floor(r2%60000/1000);
+  var e1=document.getElementById('bd-num-chen'), e2=document.getElementById('bd-num-shuo');
+  var t1=document.getElementById('bd-time-chen'), t2=document.getElementById('bd-time-shuo');
+  if(e1) e1.innerHTML=(d1===0?'今天':'<b>'+d1+'</b><span class="bd-unit">天</span>');
+  if(e2) e2.innerHTML=(d2===0?'今天':'<b>'+d2+'</b><span class="bd-unit">天</span>');
+  if(t1) t1.textContent=(d1===0?'生日快乐':pad2(h1)+':'+pad2(m1)+':'+pad2(s1));
+  if(t2) t2.textContent=(d2===0?'生日快乐':pad2(h2)+':'+pad2(m2)+':'+pad2(s2));
+}
+function goBirthday(who){
+  var d=nextBday(who);
+  calYear=d.getFullYear(); calMonth=d.getMonth();
+  renderCalendar();
+  show('calendar');
+}
+
+
 /* ================= 首页 ================= */
 function renderHome(){
   document.getElementById('slogan').textContent = settings.slogan;
   document.getElementById('cur-user').textContent = isAdmin() ? '管理员' : (currentUser ? AUTHORS[currentUser].name : '—');
   renderLoveDays();
   const pub = published().sort((a,b)=>new Date(b.time)-new Date(a.time));
-  document.getElementById('stat-total').textContent = pub.length;
-  document.getElementById('stat-month').textContent = monthCount();
+  renderBirthdays();
   const best = pub.length ? pub.slice().sort((a,b)=>(b.level-a.level)||(new Date(b.time)-new Date(a.time)))[0] : null;
   document.getElementById('hl-title').textContent = best ? best.title : '还没有心动记录';
   document.getElementById('hl-meta').innerHTML = best ? `${authorBadge(best.author)} ${fmtDay(best.time)} · ${best.level}星心动` : '点击右下角开始记录';
@@ -1413,6 +1534,17 @@ function compressVideo(file){
   });
 }
 
+function openLightbox(imgsrc){
+  const lb=document.getElementById('lightbox');
+  if(!lb || !imgsrc) return;
+  document.getElementById('lightbox-img').src=imgsrc;
+  lb.style.display='flex';
+}
+function closeLightbox(){
+  const lb=document.getElementById('lightbox');
+  if(lb) lb.style.display='none';
+}
+
 /* ================= 详情页 ================= */
 function openDetail(id){
   const r=records.find(x=>x.id===id); if(!r)return;
@@ -1435,7 +1567,7 @@ function openDetail(id){
       ${r.loc?`<div class="d-loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 1114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>${esc(r.loc)}</div>`:''}
     </div>
     ${r.tags.length?`<div class="d-tags">${r.tags.map(t=>`<span class="chip on">${esc(t)}</span>`).join('')}</div>`:''}
-    ${r.img.length?`<div class="d-imgs">${r.img.map((u,i)=>`<img src="${u}" alt="相片${i+1}">`).join('')}</div>`:''}
+    ${recImgs(r).length?`<div class="d-imgs">${recImgs(r).map((u,i)=>`<img src="${mediaUrl(u)}" alt="相片${i+1}" onclick="openLightbox(this.src)">`).join('')}</div>`:''}
     <div class="d-body">${esc(r.body||'（暂无正文）')}</div>
     ${isAdmin()?'':`<div class="reply-sec">
       <div class="r-title"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.4-9.3-8.6C1.2 9.9 2.6 6.4 5.6 5.6c1.8-.5 3.7.1 4.9 1.6l1.5 1.8 1.5-1.8c1.2-1.5 3.1-2.1 4.9-1.6 3 .8 4.4 4.3 2.9 6.8C18.7 16.6 12 21 12 21z"/></svg>心动回应</div>
@@ -2181,7 +2313,9 @@ async function boot(){
     }
   }
 }
+setInterval(renderBirthdays,1000);
 boot();
 </script>
+<div class="lightbox" id="lightbox" onclick="closeLightbox()"><img id="lightbox-img" alt="" src=""></div>
 </body>
 </html>
