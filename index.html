@@ -671,7 +671,7 @@ body{
         <button class="btn btn-primary" id="btn-slogan-save" style="align-self:flex-start">保存标语</button>
       </div>
     </div>
-    <div class="set-sec">
+    <div class="set-sec" style="display:none">
       <div class="set-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>数据备份</div>
       <div class="set-row">
         <div>
@@ -987,12 +987,7 @@ let imgPreviews = [];      // 配图本地预览 URL（演示用）
 function daysAgo(n,h,m){const d=new Date();d.setDate(d.getDate()-n);d.setHours(h,m,0,0);return d;}
 function iso(d){const p=x=>String(x).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes());}
 function dateKey(d){const p=x=>String(x).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());}
-const SEED_MARKS = (function(){
-  const m={};
-  [3,15,45,90,200].forEach(n=>{ m[dateKey(daysAgo(n,0,0))]='heart'; });
-  [8,27,60,120,300].forEach(n=>{ m[dateKey(daysAgo(n,0,0))]='star'; });
-  return m;
-})();
+/* 迁移 v3：日历标记归零——程序永不注入演示标记，只保留用户手动标记的数据。 */
 const SEEDS = [
   {id:'s1',time:iso(daysAgo(1,20,14)),title:'散步时他牵住了我的手',body:'晚饭后沿江边散步，风有点凉。他突然自然地握住我的手，放进他的外套口袋。那一瞬间心跳漏了一拍，路灯下我们都假装没在看对方。',tags:['牵手','见面'],level:5,mood:'💗',loc:'江边步道',img:[],draft:false,author:'shuo',replies:[{author:'chen',time:iso(daysAgo(1,21,5)),text:'那天其实我手心都是汗，怕你发现。但你的手软软的，我舍不得放。'}]},
   {id:'s2',time:iso(daysAgo(4,22,30)),title:'晚安语音的最后一句',body:'睡前收到他发来的语音，前前后后都是琐碎的日常，最后一句是“今天也想你了，晚安”。来来回回听了三遍。',tags:['晚安'],level:3,mood:'🌙',loc:'',img:[],draft:false,author:'chen',replies:[{author:'shuo',time:iso(daysAgo(4,23,10)),text:'录了好多遍才敢发出去，那句“想你了”是真心的。'}]},
@@ -1023,6 +1018,12 @@ function load(){
       settings = Object.assign({ slogan:'和李烁的心动碎片', theme:'light', anniversary:'2025-10-18', marks:{} }, raw.settings||{});
       if(!settings.marks || typeof settings.marks!=='object') settings.marks = {};
       Object.keys(settings.marks).forEach(k=>{ if(settings.marks[k]!=='star' && settings.marks[k]!=='heart') settings.marks[k]='heart'; });
+      // 一次性迁移 v3：清除所有旧标记（含历史演示种子残留），此后只展示用户手动标记
+      if(settings.marksVer !== 3){
+        settings.marks = {};
+        settings.marksVer = 3;
+        persist();
+      }
       currentUser = raw.currentUser || null;
       // 数据共享：登录后合并查看两人的全部记录
       records = currentUser ? [...(usersStore.chen||[]), ...(usersStore.shuo||[])].slice() : [];
@@ -1030,13 +1031,15 @@ function load(){
     else {
       // 首次使用：种子数据按作者拆给两个账号
       usersStore = { chen: SEEDS.filter(r=>r.author==='chen'), shuo: SEEDS.filter(r=>r.author==='shuo') };
-      settings.marks = Object.assign({}, SEED_MARKS);
+      settings.marks = {};
+      settings.marksVer = 3;
       records = [];
       persist();
     }
   }catch(e){
     usersStore = { chen: SEEDS.filter(r=>r.author==='chen'), shuo: SEEDS.filter(r=>r.author==='shuo') };
-    settings.marks = Object.assign({}, SEED_MARKS);
+    settings.marks = {};
+    settings.marksVer = 3;
     records = [];
     persist();
   }
